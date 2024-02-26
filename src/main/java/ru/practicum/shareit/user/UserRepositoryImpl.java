@@ -3,6 +3,7 @@ package ru.practicum.shareit.user;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
 import ru.practicum.shareit.exception.AvailabilityException;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;

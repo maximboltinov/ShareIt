@@ -2,11 +2,11 @@ package ru.practicum.shareit.user;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
 import java.util.Map;
@@ -22,9 +22,9 @@ public class UserController {
     private final UserService userService;
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public User create (@Validated @RequestBody User user) {
+    public User create (@Validated @RequestBody UserDto userDto) {
         log.info("Запрос POST /users");
-        User responseUser = userService.create(user);
+        User responseUser = userService.create(userDto);
         log.info("Отправлен ответ POST /users {}", responseUser);
         return responseUser;
     }

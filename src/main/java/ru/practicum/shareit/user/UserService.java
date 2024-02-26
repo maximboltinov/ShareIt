@@ -1,13 +1,13 @@
 package ru.practicum.shareit.user;
 
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
 import java.util.Map;
 
 public interface UserService {
-    User create(User user);
+    User create(UserDto userDto);
 
     User getUserById(Long userId);
 
