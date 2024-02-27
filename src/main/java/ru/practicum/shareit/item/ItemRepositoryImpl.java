@@ -48,7 +48,7 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public List<Item> getByUserId(Long ownerId) {
-        return repository.get(ownerId) == null? new ArrayList<>() : repository.get(ownerId);
+        return repository.get(ownerId) == null ? new ArrayList<>() : repository.get(ownerId);
     }
 
     @Override
@@ -63,7 +63,7 @@ public class ItemRepositoryImpl implements ItemRepository {
                 .flatMap(Collection::stream)
                 .filter(obj -> (obj.getName().toLowerCase().contains(textToLower)
                         || obj.getDescription().toLowerCase().contains(textToLower))
-                && obj.getAvailable())
+                        && obj.getAvailable())
                 .collect(Collectors.toList());
     }
 

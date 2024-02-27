@@ -11,7 +11,6 @@ import ru.practicum.shareit.user.UserService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -36,7 +35,7 @@ public class ItemServiceImpl implements ItemService {
 
         Item item = getByItemIdOwnerId(ownerId, itemId).toBuilder().build();
 
-        for (Map.Entry<String, String> entry: itemParts.entrySet()) {
+        for (Map.Entry<String, String> entry : itemParts.entrySet()) {
             switch (entry.getKey()) {
                 case "name":
                     item.setName(entry.getValue());
@@ -74,6 +73,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<Item> searchByText(String textForSearch) {
-        return textForSearch == null || textForSearch.isBlank()? new ArrayList<>() : itemRepository.searchByText(textForSearch);
+        return textForSearch == null || textForSearch.isBlank() ? new ArrayList<>() : itemRepository.searchByText(textForSearch);
     }
 }

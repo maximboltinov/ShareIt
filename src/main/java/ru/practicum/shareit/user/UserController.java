@@ -20,9 +20,10 @@ import java.util.Map;
 @Slf4j
 public class UserController {
     private final UserService userService;
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public User create (@Validated @RequestBody UserDto userDto) {
+    public User create(@Validated @RequestBody UserDto userDto) {
         log.info("Запрос POST /users");
         User responseUser = userService.create(userDto);
         log.info("Отправлен ответ POST /users {}", responseUser);
@@ -40,7 +41,7 @@ public class UserController {
 
     @PatchMapping("/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public User update (@PathVariable Long userId, @RequestBody Map<String, String> userParts) {
+    public User update(@PathVariable Long userId, @RequestBody Map<String, String> userParts) {
         log.info("Запрос PATCH /users/{}", userId);
         User user = userService.update(userId, userParts);
         log.info("Отправлен ответ PATCH /users/{} {}", userId, user);
