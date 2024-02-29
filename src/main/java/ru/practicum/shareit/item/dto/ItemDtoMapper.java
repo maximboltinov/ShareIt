@@ -13,4 +13,13 @@ public class ItemDtoMapper {
                 .available(itemDto.getAvailable())
                 .build();
     }
+
+    public static ItemOutDto mapperToItemOutDto(Item item) {
+        return ItemOutDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.getAvailable())
+                .build();
+    }
 }

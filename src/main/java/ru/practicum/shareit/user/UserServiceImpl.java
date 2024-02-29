@@ -2,6 +2,7 @@ package ru.practicum.shareit.user;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.EmailValidException;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserDtoMapper;
@@ -9,6 +10,7 @@ import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 @Service
 @AllArgsConstructor
@@ -33,11 +35,12 @@ public class UserServiceImpl implements UserService {
     public User update(Long userId, Map<String, String> userParts) {
         User user = getUserById(userId).toBuilder().build();
 
-        if (userParts.containsKey("name")) {
+        if (userParts.containsKey("name") && !userParts.get("name").isBlank()) {
             user.setName(userParts.get("name"));
         }
 
-        if (userParts.containsKey("email")) {
+        if (userParts.containsKey("email") && !userParts.get("email").isBlank()) {
+            emailValid(userParts.get("email"));
             user.setEmail(userParts.get("email"));
         }
 
@@ -52,5 +55,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> getAll() {
         return userRepository.getAll();
+    }
+
+    private void emailValid(String email) {
+        final Pattern pattern = Pattern.compile("\\w+([.-]?\\w+)*@\\w+([.-]?\\w+)*\\.\\w{2,4}");
+        if (!pattern.matcher(email).matches()) {
+            throw new EmailValidException("Некорректный email");
+        }
     }
 }

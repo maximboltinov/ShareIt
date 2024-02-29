@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item;
 
 import org.springframework.stereotype.Repository;
-import org.springframework.validation.annotation.Validated;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.item.model.Item;
 
@@ -15,17 +14,17 @@ public class ItemRepositoryImpl implements ItemRepository {
 
 
     @Override
-    public Item create(Long ownerId, Item item) {
+    public Item create(Item item) {
         item.setId(getId());
-        repository.computeIfAbsent(ownerId, k -> new ArrayList<>()).add(item);
+        repository.computeIfAbsent(item.getUserId(), k -> new ArrayList<>()).add(item);
 
         return item;
     }
 
     @Override
-    public Item update(Long ownerId, @Validated Item item) {
-        List<Item> list = repository.get(ownerId);
-        Item oldItem = getByItemIdOwnerId(ownerId, item.getId());
+    public Item update(Item item) {
+        List<Item> list = repository.get(item.getUserId());
+        Item oldItem = getByItemIdOwnerId(item.getUserId(), item.getId());
         int index = list.indexOf(oldItem);
         list.set(index, item);
 

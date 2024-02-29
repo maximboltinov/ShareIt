@@ -6,14 +6,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.dto.ItemOutDto;
 
 import java.util.List;
 import java.util.Map;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping("/items")
 @Slf4j
@@ -23,47 +20,47 @@ public class ItemController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Item create(@RequestHeader("X-Sharer-User-Id") Long ownerId, @RequestBody @Validated ItemDto itemDto) {
-        log.info("Запрос POST /items");
-        Item responseItem = itemService.create(ownerId, itemDto);
+    public ItemOutDto create(@RequestHeader("X-Sharer-User-Id") Long ownerId, @RequestBody @Validated ItemDto itemDto) {
+        log.info("Запрос POST /items ownerId = {} itemDto = {}", ownerId, itemDto);
+        ItemOutDto responseItem = itemService.create(ownerId, itemDto);
         log.info("Отправлен ответ POST /items {}", responseItem);
         return responseItem;
     }
 
     @PatchMapping("/{itemId}")
     @ResponseStatus(HttpStatus.OK)
-    public Item update(@RequestHeader("X-Sharer-User-Id") Long ownerId, @PathVariable Long itemId,
+    public ItemOutDto update(@RequestHeader("X-Sharer-User-Id") Long ownerId, @PathVariable Long itemId,
                        @RequestBody Map<String, String> itemParts) {
-        log.info("Запрос PATCH /items/{}", itemId);
-        Item responseItem = itemService.update(ownerId, itemId, itemParts);
-        log.info("Отправлен ответ PATCH /items/{} {}", itemId, responseItem);
-        return responseItem;
+        log.info("Запрос PATCH /items/{} ownerId = {} itemParts = {}", itemId, ownerId, itemParts);
+        ItemOutDto responseItemOut = itemService.update(ownerId, itemId, itemParts);
+        log.info("Отправлен ответ PATCH /items/{} {}", itemId, responseItemOut);
+        return responseItemOut;
     }
 
     @GetMapping("/{itemId}")
     @ResponseStatus(HttpStatus.OK)
-    public Item getById(@PathVariable Long itemId) {
+    public ItemOutDto getById(@PathVariable Long itemId) {
         log.info("Запрос GET /items/{}", itemId);
-        Item responseItem = itemService.getById(itemId);
-        log.info("Отправлен ответ GET /items/{} {}", itemId, responseItem);
-        return responseItem;
+        ItemOutDto responseItemOut = itemService.getById(itemId);
+        log.info("Отправлен ответ GET /items/{} {}", itemId, responseItemOut);
+        return responseItemOut;
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<Item> getByUserId(@RequestHeader("X-Sharer-User-Id") Long ownerId) {
+    public List<ItemOutDto> getByUserId(@RequestHeader("X-Sharer-User-Id") Long ownerId) {
         log.info("Запрос GET /items userId {}", ownerId);
-        List<Item> itemList = itemService.getByUserId(ownerId);
-        log.info("Отправлен ответ GET /items userId {} {}", ownerId, itemList);
-        return itemList;
+        List<ItemOutDto> itemOutList = itemService.getByUserId(ownerId);
+        log.info("Отправлен ответ GET /items userId {} {}", ownerId, itemOutList);
+        return itemOutList;
     }
 
     @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
-    public List<Item> searchByText(@RequestParam(name = "text", required = false) String textForSearch) {
+    public List<ItemOutDto> searchByText(@RequestParam(name = "text", required = false) String textForSearch) {
         log.info("Запрос GET /search?text={}", textForSearch);
-        List<Item> itemList = itemService.searchByText(textForSearch);
-        log.info("Отправлен ответ GET /search?text={} {}", textForSearch, itemList);
-        return itemList;
+        List<ItemOutDto> itemOutList = itemService.searchByText(textForSearch);
+        log.info("Отправлен ответ GET /search?text={} {}", textForSearch, itemOutList);
+        return itemOutList;
     }
 }

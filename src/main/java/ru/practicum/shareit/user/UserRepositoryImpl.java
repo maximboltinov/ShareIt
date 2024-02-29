@@ -1,28 +1,26 @@
 package ru.practicum.shareit.user;
 
 import org.springframework.stereotype.Repository;
-import org.springframework.validation.annotation.Validated;
 import ru.practicum.shareit.exception.AvailabilityException;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Repository
 public class UserRepositoryImpl implements UserRepository {
     private final Map<Long, User> repository = new HashMap<>();
+    private final Set<String> emailUniqSet = new HashSet<>();
     private Long id = 0L;
 
     @Override
     public User create(User user) {
-        if (emailIsPresent(user.getEmail())) {
+        if (emailUniqSet.contains(user.getEmail())) {
             throw new AvailabilityException("Адрес электронной почты уже используется");
         }
 
         user.setId(getId());
         repository.put(user.getId(), user);
+        emailUniqSet.add(user.getEmail());
         return user;
     }
 
@@ -32,12 +30,15 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public User update(@Validated User user) {
+    public User update(User user) {
         User userOld = repository.get(user.getId());
 
         if (!user.getEmail().equals(userOld.getEmail())) {
-            if (emailIsPresent(user.getEmail())) {
+            if (emailUniqSet.contains(user.getEmail())) {
                 throw new AvailabilityException("Адрес электронной почты уже используется");
+            } else {
+                emailUniqSet.remove(userOld.getEmail());
+                emailUniqSet.add(user.getEmail());
             }
         }
 
@@ -47,6 +48,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public void delete(Long userId) {
+        emailUniqSet.remove(getUserById(userId).getEmail());
         repository.remove(userId);
     }
 
@@ -57,10 +59,5 @@ public class UserRepositoryImpl implements UserRepository {
 
     private Long getId() {
         return ++id;
-    }
-
-    private boolean emailIsPresent(String email) {
-        return repository.values().stream()
-                .anyMatch(user -> email.equals(user.getEmail()));
     }
 }

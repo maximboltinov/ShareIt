@@ -5,12 +5,14 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoMapper;
+import ru.practicum.shareit.item.dto.ItemOutDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -19,16 +21,19 @@ public class ItemServiceImpl implements ItemService {
     private ItemRepository itemRepository;
 
     @Override
-    public Item create(Long ownerId, ItemDto itemDto) {
+    public ItemOutDto create(Long ownerId, ItemDto itemDto) {
         if (userService.getUserById(ownerId) == null) {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
 
-        return itemRepository.create(ownerId, ItemDtoMapper.mapperToItem(itemDto));
+        Item item = ItemDtoMapper.mapperToItem(itemDto);
+        item.setUserId(ownerId);
+
+        return ItemDtoMapper.mapperToItemOutDto(itemRepository.create(item));
     }
 
     @Override
-    public Item update(Long ownerId, Long itemId, Map<String, String> itemParts) {
+    public ItemOutDto update(Long ownerId, Long itemId, Map<String, String> itemParts) {
         if (userService.getUserById(ownerId) == null) {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
@@ -36,20 +41,22 @@ public class ItemServiceImpl implements ItemService {
         Item item = getByItemIdOwnerId(ownerId, itemId).toBuilder().build();
 
         for (Map.Entry<String, String> entry : itemParts.entrySet()) {
-            switch (entry.getKey()) {
-                case "name":
-                    item.setName(entry.getValue());
-                    break;
-                case "description":
-                    item.setDescription(entry.getValue());
-                    break;
-                case "available":
-                    item.setAvailable(Boolean.parseBoolean(entry.getValue()));
-                    break;
+            if (!entry.getValue().isBlank()) {
+                switch (entry.getKey()) {
+                    case "name":
+                        item.setName(entry.getValue());
+                        break;
+                    case "description":
+                        item.setDescription(entry.getValue());
+                        break;
+                    case "available":
+                        item.setAvailable(Boolean.parseBoolean(entry.getValue()));
+                        break;
+                }
             }
         }
 
-        return itemRepository.update(ownerId, item);
+        return ItemDtoMapper.mapperToItemOutDto(itemRepository.update(item));
     }
 
     @Override
@@ -58,21 +65,28 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Item getById(Long itemId) {
-        return itemRepository.getById(itemId);
+    public ItemOutDto getById(Long itemId) {
+        return ItemDtoMapper.mapperToItemOutDto(itemRepository.getById(itemId));
     }
 
     @Override
-    public List<Item> getByUserId(Long ownerId) {
+    public List<ItemOutDto> getByUserId(Long ownerId) {
         if (userService.getUserById(ownerId) == null) {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
 
-        return itemRepository.getByUserId(ownerId);
+        return itemRepository.getByUserId(ownerId).stream()
+                .map(ItemDtoMapper::mapperToItemOutDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Item> searchByText(String textForSearch) {
-        return textForSearch == null || textForSearch.isBlank() ? new ArrayList<>() : itemRepository.searchByText(textForSearch);
+    public List<ItemOutDto> searchByText(String textForSearch) {
+        List<Item> itemList = textForSearch == null || textForSearch.isBlank()
+                ? new ArrayList<>() : itemRepository.searchByText(textForSearch);
+
+        return itemList.stream()
+                .map(ItemDtoMapper::mapperToItemOutDto)
+                .collect(Collectors.toList());
     }
 }
