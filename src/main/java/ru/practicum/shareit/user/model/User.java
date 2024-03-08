@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.user.model;
 
 import lombok.Builder;
 import lombok.Data;
@@ -6,12 +6,9 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @Builder(toBuilder = true)
-public class Item {
+public class User {
     @EqualsAndHashCode.Exclude
     private Long id;
+    private String email;
     private String name;
-    private String description;
-    @EqualsAndHashCode.Exclude
-    private Boolean available;
-    private Long userId;
 }
