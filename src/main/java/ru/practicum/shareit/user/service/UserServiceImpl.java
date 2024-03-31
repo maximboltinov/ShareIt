@@ -1,35 +1,42 @@
 package ru.practicum.shareit.user.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.AvailabilityException;
 import ru.practicum.shareit.exception.EmailValidException;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserDtoMapper;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.user.repository.JpaUserRepository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Service
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
-    private final UserRepository userRepository;
+    private final JpaUserRepository userRepository;
 
     @Override
     public User create(UserDto userDto) {
-        return userRepository.create(UserDtoMapper.mapperToUser(userDto));
+        try {
+            return userRepository.save(UserDtoMapper.mapperToUser(userDto));
+        } catch (DataIntegrityViolationException e) {
+            throw new AvailabilityException("Адрес электронной почты уже используется");
+        }
     }
 
     @Override
     public User getUserById(Long userId) {
-        User user = userRepository.getUserById(userId);
-        if (user == null) {
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isEmpty()) {
             throw new ObjectNotFoundException(String.format("Нет пользователя с id = %s", userId));
         }
-        return user;
+        return user.get();
     }
 
     @Override
@@ -45,17 +52,17 @@ public class UserServiceImpl implements UserService {
             user.setEmail(userParts.get("email"));
         }
 
-        return userRepository.update(user);
+        return userRepository.save(user);
     }
 
     @Override
     public void delete(Long userId) {
-        userRepository.delete(userId);
+        userRepository.deleteById(userId);
     }
 
     @Override
     public List<User> getAll() {
-        return userRepository.getAll();
+        return userRepository.findAll();
     }
 
     private void emailValid(String email) {

@@ -7,19 +7,17 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoMapper;
 import ru.practicum.shareit.item.dto.ItemOutDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.item.repository.JpaItemRepository;
 import ru.practicum.shareit.user.service.UserService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private UserService userService;
-    private ItemRepository itemRepository;
+    private JpaItemRepository itemRepository;
 
     @Override
     public ItemOutDto create(Long ownerId, ItemDto itemDto) {
@@ -30,7 +28,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = ItemDtoMapper.mapperToItem(itemDto);
         item.setUserId(ownerId);
 
-        return ItemDtoMapper.mapperToItemOutDto(itemRepository.create(item));
+        return ItemDtoMapper.mapperToItemOutDto(itemRepository.save(item));
     }
 
     @Override
@@ -39,7 +37,11 @@ public class ItemServiceImpl implements ItemService {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
 
-        Item item = getByItemIdOwnerId(ownerId, itemId).toBuilder().build();
+        Item item = getItemById(itemId).toBuilder().build();
+
+        if (!Objects.equals(item.getUserId(), ownerId)) {
+            throw new ObjectNotFoundException("Несоответствие id владельца");
+        }
 
         for (Map.Entry<String, String> entry : itemParts.entrySet()) {
             if (!entry.getValue().isBlank()) {
@@ -57,17 +59,21 @@ public class ItemServiceImpl implements ItemService {
             }
         }
 
-        return ItemDtoMapper.mapperToItemOutDto(itemRepository.update(item));
+        return ItemDtoMapper.mapperToItemOutDto(itemRepository.save(item));
     }
 
     @Override
-    public Item getByItemIdOwnerId(Long ownerId, Long itemId) {
-        return itemRepository.getByItemIdOwnerId(ownerId, itemId);
+    public Item getItemById(Long itemId) {
+        Optional<Item> item = itemRepository.findById(itemId);
+        if (item.isEmpty()) {
+            throw new ObjectNotFoundException(String.format("Вещь с id %s не найдена", itemId));
+        }
+        return item.get();
     }
 
     @Override
     public ItemOutDto getById(Long itemId) {
-        return ItemDtoMapper.mapperToItemOutDto(itemRepository.getById(itemId));
+        return ItemDtoMapper.mapperToItemOutDto(getItemById(itemId));
     }
 
     @Override
@@ -76,18 +82,31 @@ public class ItemServiceImpl implements ItemService {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
 
-        return itemRepository.getByUserId(ownerId).stream()
-                .map(ItemDtoMapper::mapperToItemOutDto)
-                .collect(Collectors.toList());
+        Optional<List<Item>> itemList = itemRepository.findByUserId(ownerId);
+
+        return itemList.map(items -> items.stream()
+                        .map(ItemDtoMapper::mapperToItemOutDto)
+                        .collect(Collectors.toList()))
+                .orElseGet(ArrayList::new);
     }
 
     @Override
     public List<ItemOutDto> searchByText(String textForSearch) {
-        List<Item> itemList = textForSearch == null || textForSearch.isBlank()
-                ? new ArrayList<>() : itemRepository.searchByText(textForSearch);
+        if (textForSearch.isBlank()) {
+            return new ArrayList<>();
+        }
 
-        return itemList.stream()
-                .map(ItemDtoMapper::mapperToItemOutDto)
-                .collect(Collectors.toList());
+        List<Item> itemList = itemRepository
+                .some(textForSearch);
+
+        System.out.println(itemList);
+
+       return itemList.stream()
+               .map(ItemDtoMapper::mapperToItemOutDto)
+               .collect(Collectors.toList());
+
+//        return itemList.map(items -> items.stream()
+//                .map(ItemDtoMapper::mapperToItemOutDto)
+//                .collect(Collectors.toList())).orElseGet(ArrayList::new);
     }
 }

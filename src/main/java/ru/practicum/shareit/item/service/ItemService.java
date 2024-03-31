@@ -12,7 +12,7 @@ public interface ItemService {
 
     ItemOutDto update(Long ownerId, Long itemId, Map<String, String> itemParts);
 
-    Item getByItemIdOwnerId(Long ownerId, Long itemId);
+    Item getItemById(Long itemId);
 
     ItemOutDto getById(Long itemId);
 
