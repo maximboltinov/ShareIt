@@ -22,4 +22,13 @@ public class ItemDtoMapper {
                 .available(item.getAvailable())
                 .build();
     }
+
+    public static ItemBookerOutDto mapperToItemBookerOutDto(Item item) {
+        return ItemBookerOutDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.getAvailable())
+                .build();
+    }
 }

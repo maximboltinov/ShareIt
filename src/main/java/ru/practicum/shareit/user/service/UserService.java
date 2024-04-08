@@ -16,4 +16,6 @@ public interface UserService {
     void delete(Long userId);
 
     List<User> getAll();
+
+    Boolean isPresent(Long userId);
 }

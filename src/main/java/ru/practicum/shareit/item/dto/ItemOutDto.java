@@ -3,8 +3,8 @@ package ru.practicum.shareit.item.dto;
 import lombok.Builder;
 import lombok.Data;
 
-@Data
 @Builder
+@Data
 public class ItemOutDto {
     private Long id;
     private String name;

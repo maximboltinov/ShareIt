@@ -65,6 +65,11 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll();
     }
 
+    @Override
+    public Boolean isPresent(Long userId) {
+        return userRepository.existsById(userId);
+    }
+
     private void emailValid(String email) {
         final Pattern pattern = Pattern.compile("\\w+([.-]?\\w+)*@\\w+([.-]?\\w+)*\\.\\w{2,4}");
         if (!pattern.matcher(email).matches()) {

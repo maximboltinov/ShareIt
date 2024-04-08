@@ -30,6 +30,8 @@ public class ErrorHandler {
                         "указаны не все параметры или некорректный email");
             case "itemDto":
                 return Map.of("ошибка валидации данных вещи", "указаны не все параметры");
+            case "text":
+                return Map.of("ошибка валидации данных вещи", "сообщение не можен быть пустым");
             default:
                 return Map.of("непредвиденная ошибка", "проверьте переданные параметры");
         }
@@ -47,5 +49,12 @@ public class ErrorHandler {
     public Map<String, String> handlerValid(final EmailValidException e) {
         log.info("Завершен ошибкой", e);
         return Map.of("email", e.getMessage());
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handlerBadRequest(final BadRequestException e) {
+        log.info("Завершен ошибкой", e);
+        return Map.of(e.getArea(), e.getMessage());
     }
 }

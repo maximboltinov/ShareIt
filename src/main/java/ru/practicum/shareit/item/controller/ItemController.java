@@ -5,9 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.service.ItemService;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemOutDto;
 
 import java.util.List;
 import java.util.Map;
@@ -31,7 +30,7 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     @ResponseStatus(HttpStatus.OK)
     public ItemOutDto update(@RequestHeader("X-Sharer-User-Id") Long ownerId, @PathVariable Long itemId,
-                       @RequestBody Map<String, String> itemParts) {
+                             @RequestBody Map<String, String> itemParts) {
         log.info("Запрос PATCH /items/{} ownerId = {} itemParts = {}", itemId, ownerId, itemParts);
         ItemOutDto responseItemOut = itemService.update(ownerId, itemId, itemParts);
         log.info("Отправлен ответ PATCH /items/{} {}", itemId, responseItemOut);
@@ -40,18 +39,18 @@ public class ItemController {
 
     @GetMapping("/{itemId}")
     @ResponseStatus(HttpStatus.OK)
-    public ItemOutDto getById(@PathVariable Long itemId) {
+    public ItemBookerOutDto getByItemId(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long itemId) {
         log.info("Запрос GET /items/{}", itemId);
-        ItemOutDto responseItemOut = itemService.getById(itemId);
+        ItemBookerOutDto responseItemOut = itemService.getByItemId(itemId, userId);
         log.info("Отправлен ответ GET /items/{} {}", itemId, responseItemOut);
         return responseItemOut;
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<ItemOutDto> getByUserId(@RequestHeader("X-Sharer-User-Id") Long ownerId) {
+    public List<ItemBookerOutDto> getByUserId(@RequestHeader("X-Sharer-User-Id") Long ownerId) {
         log.info("Запрос GET /items userId {}", ownerId);
-        List<ItemOutDto> itemOutList = itemService.getByUserId(ownerId);
+        List<ItemBookerOutDto> itemOutList = itemService.getByUserId(ownerId);
         log.info("Отправлен ответ GET /items userId {} {}", ownerId, itemOutList);
         return itemOutList;
     }
@@ -63,5 +62,18 @@ public class ItemController {
         List<ItemOutDto> itemOutList = itemService.searchByText(textForSearch);
         log.info("Отправлен ответ GET /search?text={} {}", textForSearch, itemOutList);
         return itemOutList;
+    }
+
+    @PostMapping("/{itemId}/comment")
+    @ResponseStatus(HttpStatus.OK)
+    public CommentOutDto addComment(@RequestHeader("X-Sharer-User-Id") Long authorId,
+                                    @PathVariable Long itemId,
+                                    @RequestBody @Validated CommentDto text) {
+        System.out.println("authorId = " + authorId + ", itemId = " + itemId + ", text = " + text + ", text = " + text.getText());
+
+        log.info("Запрос POST /items/{}/comment", itemId);
+        CommentOutDto comment = itemService.addComment(authorId, itemId, text);
+        log.info("Отправлен ответ POST /items/{}/comment {}", itemId, comment);
+        return comment;
     }
 }

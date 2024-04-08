@@ -11,7 +11,6 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Item {
-    @EqualsAndHashCode.Exclude
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
