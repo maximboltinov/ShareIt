@@ -8,12 +8,12 @@ import java.util.List;
 
 @Data
 @Builder
-public class ItemBookerOutDto {
+public class ItemBookingCommentsResponseDto {
     private Long id;
     private String name;
     private String description;
     private Boolean available;
     private ShortBooking lastBooking;
     private ShortBooking nextBooking;
-    private List<CommentOutDto> comments;
+    private List<CommentResponseDto> comments;
 }

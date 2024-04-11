@@ -7,7 +7,7 @@ import javax.validation.constraints.Positive;
 import java.time.LocalDateTime;
 
 @Getter
-public class BookingDto {
+public class BookingRequestDto {
     @NotNull
     @Positive
     private Long itemId;

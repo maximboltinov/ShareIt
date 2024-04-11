@@ -6,8 +6,9 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.AvailabilityException;
 import ru.practicum.shareit.exception.EmailValidException;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
-import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserRequestDto;
 import ru.practicum.shareit.user.dto.UserDtoMapper;
+import ru.practicum.shareit.user.dto.UserResponseDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.JpaUserRepository;
 
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -22,9 +24,10 @@ public class UserServiceImpl implements UserService {
     private final JpaUserRepository userRepository;
 
     @Override
-    public User create(UserDto userDto) {
+    public UserResponseDto create(UserRequestDto userRequestDto) {
         try {
-            return userRepository.save(UserDtoMapper.mapperToUser(userDto));
+            return UserDtoMapper
+                    .mapperToUserResponseDto(userRepository.save(UserDtoMapper.mapperToUser(userRequestDto)));
         } catch (DataIntegrityViolationException e) {
             throw new AvailabilityException("Адрес электронной почты уже используется");
         }
@@ -40,8 +43,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User update(Long userId, Map<String, String> userParts) {
-        User user = getUserById(userId).toBuilder().build();
+    public UserResponseDto update(Long userId, Map<String, String> userParts) {
+        User user = getUserById(userId);
 
         if (userParts.containsKey("name") && !userParts.get("name").isBlank()) {
             user.setName(userParts.get("name"));
@@ -52,7 +55,7 @@ public class UserServiceImpl implements UserService {
             user.setEmail(userParts.get("email"));
         }
 
-        return userRepository.save(user);
+        return UserDtoMapper.mapperToUserResponseDto(userRepository.save(user));
     }
 
     @Override
@@ -61,13 +64,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getAll() {
-        return userRepository.findAll();
+    public List<UserResponseDto> getAll() {
+        return userRepository.findAll().stream()
+                .map(UserDtoMapper::mapperToUserResponseDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     public Boolean isPresent(Long userId) {
         return userRepository.existsById(userId);
+    }
+
+    @Override
+    public UserResponseDto getUserResponseById(Long userId) {
+        return UserDtoMapper.mapperToUserResponseDto(getUserById(userId));
     }
 
     private void emailValid(String email) {

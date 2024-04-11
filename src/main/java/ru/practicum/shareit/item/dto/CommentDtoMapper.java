@@ -7,8 +7,8 @@ public final class CommentDtoMapper {
 
     }
 
-    public static CommentOutDto commentCommentOutDtoMapper(Comment comment) {
-        return CommentOutDto.builder()
+    public static CommentResponseDto commentCommentOutDtoMapper(Comment comment) {
+        return CommentResponseDto.builder()
                 .id(comment.getId())
                 .authorName(comment.getAuthor().getName())
                 .text(comment.getText())

@@ -7,17 +7,17 @@ import java.util.List;
 import java.util.Map;
 
 public interface ItemService {
-    ItemOutDto create(Long ownerId, ItemDto itemDto);
+    ItemOnlyResponseDto create(Long ownerId, ItemRequestDto itemRequestDto);
 
-    ItemOutDto update(Long ownerId, Long itemId, Map<String, String> itemParts);
+    ItemOnlyResponseDto update(Long ownerId, Long itemId, Map<String, String> itemParts);
 
     Item getItemById(Long itemId);
 
-    ItemBookerOutDto getByItemId(Long itemId, Long userId);
+    ItemBookingCommentsResponseDto getByItemId(Long itemId, Long userId);
 
-    List<ItemBookerOutDto> getByUserId(Long ownerId);
+    List<ItemBookingCommentsResponseDto> getByUserId(Long ownerId);
 
-    List<ItemOutDto> searchByText(String textForSearch);
+    List<ItemOnlyResponseDto> searchByText(String textForSearch);
 
-    CommentOutDto addComment(Long authorId, Long itemId, CommentDto text);
+    CommentResponseDto addComment(Long authorId, Long itemId, CommentRequestDto text);
 }

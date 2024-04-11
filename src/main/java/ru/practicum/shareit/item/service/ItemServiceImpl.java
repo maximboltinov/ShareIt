@@ -27,19 +27,19 @@ public class ItemServiceImpl implements ItemService {
     private JpaCommentRepository jpaCommentRepository;
 
     @Override
-    public ItemOutDto create(Long ownerId, ItemDto itemDto) {
+    public ItemOnlyResponseDto create(Long ownerId, ItemRequestDto itemRequestDto) {
         if (userService.getUserById(ownerId) == null) {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
 
-        Item item = ItemDtoMapper.mapperToItem(itemDto);
+        Item item = ItemDtoMapper.mapperToItem(itemRequestDto);
         item.setUserId(ownerId);
 
         return ItemDtoMapper.mapperToItemOutDto(itemRepository.save(item));
     }
 
     @Override
-    public ItemOutDto update(Long ownerId, Long itemId, Map<String, String> itemParts) {
+    public ItemOnlyResponseDto update(Long ownerId, Long itemId, Map<String, String> itemParts) {
         if (userService.getUserById(ownerId) == null) {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
@@ -79,32 +79,32 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemBookerOutDto getByItemId(Long itemId, Long userId) {
+    public ItemBookingCommentsResponseDto getByItemId(Long itemId, Long userId) {
         Item item = getItemById(itemId);
-        ItemBookerOutDto itemBookerOutDto = ItemDtoMapper.mapperToItemBookerOutDto(item);
+        ItemBookingCommentsResponseDto itemBookingCommentsResponseDto = ItemDtoMapper.mapperToItemBookerOutDto(item);
 
         if (!Objects.equals(item.getUserId(), userId)) {
-            itemBookerOutDto.setNextBooking(null);
-            itemBookerOutDto.setLastBooking(null);
+            itemBookingCommentsResponseDto.setNextBooking(null);
+            itemBookingCommentsResponseDto.setLastBooking(null);
         } else {
-            addShortBookingsToItemBookerOutDto(itemBookerOutDto,
+            addShortBookingsToItemBookerOutDto(itemBookingCommentsResponseDto,
                     bookingRepository.getShortBookingsByItemId(itemId, BookingStatus.APPROVED), LocalDateTime.now());
         }
 
-        Optional<List<CommentOutDto>> optionalCommentOutDtoList =
+        Optional<List<CommentResponseDto>> optionalCommentOutDtoList =
                 jpaCommentRepository.getCommentsOutDtoByItemId(itemId);
 
         if (optionalCommentOutDtoList.isEmpty()) {
-            itemBookerOutDto.setComments(new ArrayList<>());
+            itemBookingCommentsResponseDto.setComments(new ArrayList<>());
         } else {
-            itemBookerOutDto.setComments(optionalCommentOutDtoList.get());
+            itemBookingCommentsResponseDto.setComments(optionalCommentOutDtoList.get());
         }
 
-        return itemBookerOutDto;
+        return itemBookingCommentsResponseDto;
     }
 
     @Override
-    public List<ItemBookerOutDto> getByUserId(Long ownerId) {
+    public List<ItemBookingCommentsResponseDto> getByUserId(Long ownerId) {
         if (userService.getUserById(ownerId) == null) {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
@@ -119,7 +119,7 @@ public class ItemServiceImpl implements ItemService {
         List<ShortBooking> shortBookingList =
                 bookingRepository.getShortBookingsByItemsOwnerId(ownerId, BookingStatus.APPROVED);
 
-        List<ItemBookerOutDto> itemBookerOutDtoList = new ArrayList<>();
+        List<ItemBookingCommentsResponseDto> itemBookingCommentsResponseDtoList = new ArrayList<>();
 
         for (Item item : itemList) {
             List<ShortBooking> shortBookingListForItem = shortBookingList.stream()
@@ -128,16 +128,16 @@ public class ItemServiceImpl implements ItemService {
                     .sorted(Comparator.comparing(ShortBooking::getBookerId))
                     .collect(Collectors.toList());
 
-            itemBookerOutDtoList.add(
+            itemBookingCommentsResponseDtoList.add(
                     addShortBookingsToItemBookerOutDto(ItemDtoMapper.mapperToItemBookerOutDto(item),
                             shortBookingListForItem, LocalDateTime.now()));
         }
 
-        return itemBookerOutDtoList;
+        return itemBookingCommentsResponseDtoList;
     }
 
     @Override
-    public List<ItemOutDto> searchByText(String textForSearch) {
+    public List<ItemOnlyResponseDto> searchByText(String textForSearch) {
         if (textForSearch.isBlank()) {
             return new ArrayList<>();
         }
@@ -148,7 +148,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public CommentOutDto addComment(Long authorId, Long itemId, CommentDto text) {
+    public CommentResponseDto addComment(Long authorId, Long itemId, CommentRequestDto text) {
         if (!userService.isPresent(authorId)) {
             throw new BadRequestException("addComment", "Пользователь не существует");
         }
@@ -174,24 +174,24 @@ public class ItemServiceImpl implements ItemService {
         return CommentDtoMapper.commentCommentOutDtoMapper(jpaCommentRepository.save(comment));
     }
 
-    private ItemBookerOutDto addShortBookingsToItemBookerOutDto(ItemBookerOutDto itemBookerOutDto,
-                                                                List<ShortBooking> shortBookingList,
-                                                                LocalDateTime datePoint) {
+    private ItemBookingCommentsResponseDto addShortBookingsToItemBookerOutDto(ItemBookingCommentsResponseDto itemBookingCommentsResponseDto,
+                                                                              List<ShortBooking> shortBookingList,
+                                                                              LocalDateTime datePoint) {
 
         Optional<ShortBooking> lastBooking = shortBookingList.stream()
                 .filter(booking -> booking.getStart().isBefore(datePoint))
                 .max(ShortBooking::compareTo);
 
 
-        itemBookerOutDto.setLastBooking(lastBooking.orElse(null));
+        itemBookingCommentsResponseDto.setLastBooking(lastBooking.orElse(null));
 
 
         Optional<ShortBooking> nextBooking = shortBookingList.stream()
                 .filter(booking -> booking.getStart().isAfter(datePoint))
                 .min(ShortBooking::compareTo);
 
-        itemBookerOutDto.setNextBooking(nextBooking.orElse(null));
+        itemBookingCommentsResponseDto.setNextBooking(nextBooking.orElse(null));
 
-        return itemBookerOutDto;
+        return itemBookingCommentsResponseDto;
     }
 }

@@ -6,16 +6,16 @@ public class ItemDtoMapper {
     private ItemDtoMapper() {
     }
 
-    public static Item mapperToItem(ItemDto itemDto) {
+    public static Item mapperToItem(ItemRequestDto itemRequestDto) {
         return Item.builder()
-                .name(itemDto.getName())
-                .description(itemDto.getDescription())
-                .available(itemDto.getAvailable())
+                .name(itemRequestDto.getName())
+                .description(itemRequestDto.getDescription())
+                .available(itemRequestDto.getAvailable())
                 .build();
     }
 
-    public static ItemOutDto mapperToItemOutDto(Item item) {
-        return ItemOutDto.builder()
+    public static ItemOnlyResponseDto mapperToItemOutDto(Item item) {
+        return ItemOnlyResponseDto.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
@@ -23,8 +23,8 @@ public class ItemDtoMapper {
                 .build();
     }
 
-    public static ItemBookerOutDto mapperToItemBookerOutDto(Item item) {
-        return ItemBookerOutDto.builder()
+    public static ItemBookingCommentsResponseDto mapperToItemBookerOutDto(Item item) {
+        return ItemBookingCommentsResponseDto.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())

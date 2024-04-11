@@ -2,8 +2,9 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingDtoMapper;
+import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.JpaBookingRepository;
@@ -27,10 +28,10 @@ public class BookingServiceImpl implements BookingService {
     private final UserService userService;
 
     @Override
-    public Booking create(Long bookerId, BookingDto bookingDto) {
-        Booking booking = BookingDtoMapper.mapperToBooking(bookingDto);
+    public BookingResponseDto create(Long bookerId, BookingRequestDto bookingRequestDto) {
+        Booking booking = BookingDtoMapper.mapperToBooking(bookingRequestDto);
         booking.setBooker(userService.getUserById(bookerId));
-        booking.setItem(itemService.getItemById(bookingDto.getItemId()));
+        booking.setItem(itemService.getItemById(bookingRequestDto.getItemId()));
 
         if (Objects.equals(bookerId, booking.getItem().getUserId())) {
             throw new ObjectNotFoundException("нельзя арендовать у себя");
@@ -46,11 +47,11 @@ public class BookingServiceImpl implements BookingService {
             throw new BadRequestException("booking create", "дата окончания раньше начала или равны");
         }
 
-        return bookingRepository.save(booking);
+        return BookingDtoMapper.mapperToBookingResponseDto(bookingRepository.save(booking));
     }
 
     @Override
-    public Booking updateApprove(Long itemOwnerId, Long bookingId, Boolean approved) {
+    public BookingResponseDto updateApprove(Long itemOwnerId, Long bookingId, Boolean approved) {
         Optional<Booking> optionalBooking = bookingRepository.findById(bookingId);
         Booking booking;
         if (optionalBooking.isPresent()) {
@@ -73,11 +74,11 @@ public class BookingServiceImpl implements BookingService {
             throw new ObjectNotFoundException("несоответствие пользователя и владельца");
         }
 
-        return bookingRepository.save(booking);
+        return BookingDtoMapper.mapperToBookingResponseDto(bookingRepository.save(booking));
     }
 
     @Override
-    public Booking getBookingById(Long userId, Long bookingId) {
+    public BookingResponseDto getBookingById(Long userId, Long bookingId) {
         if (!(userService.isPresent(userId) && bookingRepository.existsById(bookingId))) {
             throw new ObjectNotFoundException("не найден user или booking");
         }
@@ -86,30 +87,34 @@ public class BookingServiceImpl implements BookingService {
 
         if (Objects.equals(booking.getBooker().getId(), userId)
                 || Objects.equals(booking.getItem().getUserId(), userId)) {
-            return booking;
+            return BookingDtoMapper.mapperToBookingResponseDto(booking);
         } else {
             throw new ObjectNotFoundException("несоответствие id владельца вещи или арендатора");
         }
     }
 
     @Override
-    public List<Booking> getBookingsByBookerId(Long bookerId, String state) {
+    public List<BookingResponseDto> getBookingsByBookerId(Long bookerId, String state) {
         if (!userService.isPresent(bookerId)) {
             throw new ObjectNotFoundException("не найден пользователь");
         }
 
         List<Booking> bookingList = bookingRepository.getBookingsByBookerId(bookerId);
-        return filteredEndSorted(bookingList, state);
+        return filteredEndSorted(bookingList, state).stream().
+                map(BookingDtoMapper::mapperToBookingResponseDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Booking> getBookingsByOwnerId(Long ownerId, String state) {
+    public List<BookingResponseDto> getBookingsByOwnerId(Long ownerId, String state) {
         if (!userService.isPresent(ownerId)) {
             throw new ObjectNotFoundException("не найден пользователь");
         }
 
         List<Booking> bookingList = bookingRepository.getBookingsByItem_UserId(ownerId);
-        return filteredEndSorted(bookingList, state);
+        return filteredEndSorted(bookingList, state).stream().
+                map(BookingDtoMapper::mapperToBookingResponseDto)
+                .collect(Collectors.toList());
     }
 
     private List<Booking> filteredEndSorted(List<Booking> bookingList, String state) {
