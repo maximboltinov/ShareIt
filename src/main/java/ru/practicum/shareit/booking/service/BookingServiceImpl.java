@@ -10,7 +10,9 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.JpaBookingRepository;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
@@ -29,9 +31,10 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingResponseDto create(Long bookerId, BookingRequestDto bookingRequestDto) {
-        Booking booking = BookingDtoMapper.mapperToBooking(bookingRequestDto);
-        booking.setBooker(userService.getUserById(bookerId));
-        booking.setItem(itemService.getItemById(bookingRequestDto.getItemId()));
+        User userById = userService.getUserById(bookerId);
+        Item itemById = itemService.getItemById(bookingRequestDto.getItemId());
+
+        Booking booking = BookingDtoMapper.mapperToBooking(bookingRequestDto, userById, itemById);
 
         if (Objects.equals(bookerId, booking.getItem().getOwnerId())) {
             throw new ObjectNotFoundException("нельзя арендовать у себя");
