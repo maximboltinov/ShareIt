@@ -33,7 +33,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setBooker(userService.getUserById(bookerId));
         booking.setItem(itemService.getItemById(bookingRequestDto.getItemId()));
 
-        if (Objects.equals(bookerId, booking.getItem().getUserId())) {
+        if (Objects.equals(bookerId, booking.getItem().getOwnerId())) {
             throw new ObjectNotFoundException("нельзя арендовать у себя");
         }
 
@@ -64,7 +64,7 @@ public class BookingServiceImpl implements BookingService {
             throw new BadRequestException("updateApprove", "изменение статуса после согласования");
         }
 
-        if (Objects.equals(itemOwnerId, booking.getItem().getUserId())) {
+        if (Objects.equals(itemOwnerId, booking.getItem().getOwnerId())) {
             if (approved) {
                 booking.setStatus(BookingStatus.APPROVED);
             } else {
@@ -86,7 +86,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findById(bookingId).get();
 
         if (Objects.equals(booking.getBooker().getId(), userId)
-                || Objects.equals(booking.getItem().getUserId(), userId)) {
+                || Objects.equals(booking.getItem().getOwnerId(), userId)) {
             return BookingDtoMapper.mapperToBookingResponseDto(booking);
         } else {
             throw new ObjectNotFoundException("несоответствие id владельца вещи или арендатора");
@@ -111,7 +111,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ObjectNotFoundException("не найден пользователь");
         }
 
-        List<Booking> bookingList = bookingRepository.getBookingsByItem_UserId(ownerId);
+        List<Booking> bookingList = bookingRepository.getBookingsByItem_OwnerId(ownerId);
         return filteredEndSorted(bookingList, state).stream().
                 map(BookingDtoMapper::mapperToBookingResponseDto)
                 .collect(Collectors.toList());

@@ -33,7 +33,7 @@ public class ItemServiceImpl implements ItemService {
         }
 
         Item item = ItemDtoMapper.mapperToItem(itemRequestDto);
-        item.setUserId(ownerId);
+        item.setOwnerId(ownerId);
 
         return ItemDtoMapper.mapperToItemOutDto(itemRepository.save(item));
     }
@@ -46,7 +46,7 @@ public class ItemServiceImpl implements ItemService {
 
         Item item = getItemById(itemId).toBuilder().build();
 
-        if (!Objects.equals(item.getUserId(), ownerId)) {
+        if (!Objects.equals(item.getOwnerId(), ownerId)) {
             throw new ObjectNotFoundException("Несоответствие id владельца");
         }
 
@@ -83,7 +83,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = getItemById(itemId);
         ItemBookingCommentsResponseDto itemBookingCommentsResponseDto = ItemDtoMapper.mapperToItemBookerOutDto(item);
 
-        if (!Objects.equals(item.getUserId(), userId)) {
+        if (!Objects.equals(item.getOwnerId(), userId)) {
             itemBookingCommentsResponseDto.setNextBooking(null);
             itemBookingCommentsResponseDto.setLastBooking(null);
         } else {
@@ -109,7 +109,7 @@ public class ItemServiceImpl implements ItemService {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
 
-        Optional<List<Item>> optionalItemList = itemRepository.findByUserIdOrderById(ownerId);
+        Optional<List<Item>> optionalItemList = itemRepository.findByOwnerIdOrderById(ownerId);
 
         if (optionalItemList.isEmpty()) {
             return new ArrayList<>();

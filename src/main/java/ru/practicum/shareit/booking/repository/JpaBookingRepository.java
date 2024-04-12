@@ -13,10 +13,10 @@ import java.util.Optional;
 public interface JpaBookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> getBookingsByBookerId(Long bookerId);
 
-    List<Booking> getBookingsByItem_UserId(Long ownerId);
+    List<Booking> getBookingsByItem_OwnerId(Long ownerId);
 
     @Query("select new ru.practicum.shareit.booking.dto.ShortBooking( " +
-            "booking.id, booker.id, booking.start, booking.end, item.userId) " +
+            "booking.id, booker.id, booking.start, booking.end, item.ownerId) " +
             "from Booking booking " +
             "join booking.item item " +
             "join booking.booker booker " +
@@ -28,7 +28,7 @@ public interface JpaBookingRepository extends JpaRepository<Booking, Long> {
             "from Booking booking " +
             "join booking.item item " +
             "join booking.booker booker " +
-            "where item.userId = ?1 and booking.status = ?2")
+            "where item.ownerId = ?1 and booking.status = ?2")
     List<ShortBooking> getShortBookingsByItemsOwnerId(Long ownerId, BookingStatus bookingStatus);
 
 @Query("select count(booking.id) from Booking booking " +

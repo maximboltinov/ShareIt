@@ -21,6 +21,6 @@ public class Item {
     @EqualsAndHashCode.Exclude
     @Column(nullable = false)
     private Boolean available;
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @Column(name = "owner_id", nullable = false)
+    private Long ownerId;
 }

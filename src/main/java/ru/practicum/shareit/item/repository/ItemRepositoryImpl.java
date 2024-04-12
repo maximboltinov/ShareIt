@@ -16,15 +16,15 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public Item create(Item item) {
         item.setId(getId());
-        repository.computeIfAbsent(item.getUserId(), k -> new ArrayList<>()).add(item);
+        repository.computeIfAbsent(item.getOwnerId(), k -> new ArrayList<>()).add(item);
 
         return item;
     }
 
     @Override
     public Item update(Item item) {
-        List<Item> list = repository.get(item.getUserId());
-        Item oldItem = getByItemIdOwnerId(item.getUserId(), item.getId());
+        List<Item> list = repository.get(item.getOwnerId());
+        Item oldItem = getByItemIdOwnerId(item.getOwnerId(), item.getId());
         int index = list.indexOf(oldItem);
         list.set(index, item);
 
