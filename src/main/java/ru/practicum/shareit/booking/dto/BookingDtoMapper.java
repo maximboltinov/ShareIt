@@ -26,8 +26,8 @@ public final class BookingDtoMapper {
                 .end(booking.getEnd())
                 .status(booking.getStatus())
                 .booker(new BookingResponseDto.BookerId(booking.getBooker().getId()))
-                .item(new BookingResponseDto.ItemIdName(booking.getItem().getId()
-                        , booking.getItem().getName()))
+                .item(new BookingResponseDto.ItemIdName(booking.getItem().getId(),
+                        booking.getItem().getName()))
                 .build();
     }
 }

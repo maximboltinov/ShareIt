@@ -103,8 +103,8 @@ public class BookingServiceImpl implements BookingService {
         }
 
         List<Booking> bookingList = bookingRepository.getBookingsByBookerId(bookerId);
-        return filteredEndSorted(bookingList, state).stream().
-                map(BookingDtoMapper::mapperToBookingResponseDto)
+        return filteredEndSorted(bookingList, state).stream()
+                .map(BookingDtoMapper::mapperToBookingResponseDto)
                 .collect(Collectors.toList());
     }
 
@@ -115,8 +115,8 @@ public class BookingServiceImpl implements BookingService {
         }
 
         List<Booking> bookingList = bookingRepository.getBookingsByItem_OwnerId(ownerId);
-        return filteredEndSorted(bookingList, state).stream().
-                map(BookingDtoMapper::mapperToBookingResponseDto)
+        return filteredEndSorted(bookingList, state).stream()
+                .map(BookingDtoMapper::mapperToBookingResponseDto)
                 .collect(Collectors.toList());
     }
 

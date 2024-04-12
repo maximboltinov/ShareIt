@@ -13,7 +13,7 @@ public final class UserDtoMapper {
                 .build();
     }
 
-    public static UserResponseDto mapperToUserResponseDto (User user) {
+    public static UserResponseDto mapperToUserResponseDto(User user) {
         return new UserResponseDto(user.getId(), user.getEmail(), user.getName());
     }
 }
