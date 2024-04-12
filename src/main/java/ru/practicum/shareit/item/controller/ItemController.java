@@ -9,7 +9,6 @@ import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/items")
@@ -21,9 +20,9 @@ public class ItemController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ItemOnlyResponseDto create(@RequestHeader("X-Sharer-User-Id") Long ownerId,
-                                      @RequestBody @Validated ItemRequestDto itemRequestDto) {
-        log.info("Запрос POST /items ownerId = {} itemDto = {}", ownerId, itemRequestDto);
-        ItemOnlyResponseDto responseItem = itemService.create(ownerId, itemRequestDto);
+                                      @RequestBody @Validated CreateItemRequestDto createItemRequestDto) {
+        log.info("Запрос POST /items ownerId = {} itemDto = {}", ownerId, createItemRequestDto);
+        ItemOnlyResponseDto responseItem = itemService.create(ownerId, createItemRequestDto);
         log.info("Отправлен ответ POST /items {}", responseItem);
         return responseItem;
     }
@@ -31,9 +30,9 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     @ResponseStatus(HttpStatus.OK)
     public ItemOnlyResponseDto update(@RequestHeader("X-Sharer-User-Id") Long ownerId, @PathVariable Long itemId,
-                                      @RequestBody Map<String, String> itemParts) {
-        log.info("Запрос PATCH /items/{} ownerId = {} itemParts = {}", itemId, ownerId, itemParts);
-        ItemOnlyResponseDto responseItemOut = itemService.update(ownerId, itemId, itemParts);
+                                      @RequestBody UpdateItemRequestDto updateItem) {
+        log.info("Запрос PATCH /items/{} ownerId = {} itemParts = {}", itemId, ownerId, updateItem);
+        ItemOnlyResponseDto responseItemOut = itemService.update(ownerId, itemId, updateItem);
         log.info("Отправлен ответ PATCH /items/{} {}", itemId, responseItemOut);
         return responseItemOut;
     }

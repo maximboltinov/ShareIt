@@ -27,19 +27,19 @@ public class ItemServiceImpl implements ItemService {
     private JpaCommentRepository jpaCommentRepository;
 
     @Override
-    public ItemOnlyResponseDto create(Long ownerId, ItemRequestDto itemRequestDto) {
+    public ItemOnlyResponseDto create(Long ownerId, CreateItemRequestDto createItemRequestDto) {
         if (userService.getUserById(ownerId) == null) {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
 
-        Item item = ItemDtoMapper.mapperToItem(itemRequestDto);
+        Item item = ItemDtoMapper.mapperToItem(createItemRequestDto);
         item.setOwnerId(ownerId);
 
         return ItemDtoMapper.mapperToItemOutDto(itemRepository.save(item));
     }
 
     @Override
-    public ItemOnlyResponseDto update(Long ownerId, Long itemId, Map<String, String> itemParts) {
+    public ItemOnlyResponseDto update(Long ownerId, Long itemId, UpdateItemRequestDto updateItem/*Map<String, String> itemParts*/) {
         if (userService.getUserById(ownerId) == null) {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
@@ -50,20 +50,14 @@ public class ItemServiceImpl implements ItemService {
             throw new ObjectNotFoundException("Несоответствие id владельца");
         }
 
-        for (Map.Entry<String, String> entry : itemParts.entrySet()) {
-            if (!entry.getValue().isBlank()) {
-                switch (entry.getKey()) {
-                    case "name":
-                        item.setName(entry.getValue());
-                        break;
-                    case "description":
-                        item.setDescription(entry.getValue());
-                        break;
-                    case "available":
-                        item.setAvailable(Boolean.parseBoolean(entry.getValue()));
-                        break;
-                }
-            }
+        if (updateItem.getName() != null && !updateItem.getName().isBlank()) {
+            item.setName(updateItem.getName());
+        }
+        if (updateItem.getDescription() != null && !updateItem.getDescription().isBlank()) {
+            item.setDescription(updateItem.getDescription());
+        }
+        if (updateItem.getAvailable() != null) {
+            item.setAvailable(updateItem.getAvailable());
         }
 
         return ItemDtoMapper.mapperToItemOutDto(itemRepository.save(item));

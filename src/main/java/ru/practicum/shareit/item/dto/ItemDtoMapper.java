@@ -6,11 +6,11 @@ public class ItemDtoMapper {
     private ItemDtoMapper() {
     }
 
-    public static Item mapperToItem(ItemRequestDto itemRequestDto) {
+    public static Item mapperToItem(CreateItemRequestDto createItemRequestDto) {
         return Item.builder()
-                .name(itemRequestDto.getName())
-                .description(itemRequestDto.getDescription())
-                .available(itemRequestDto.getAvailable())
+                .name(createItemRequestDto.getName())
+                .description(createItemRequestDto.getDescription())
+                .available(createItemRequestDto.getAvailable())
                 .build();
     }
 

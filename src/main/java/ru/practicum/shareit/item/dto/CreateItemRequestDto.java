@@ -6,7 +6,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class ItemRequestDto {
+public class CreateItemRequestDto {
     @NotBlank
     private String name;
     @NotBlank

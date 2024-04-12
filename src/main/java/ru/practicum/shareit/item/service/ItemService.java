@@ -4,12 +4,11 @@ import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
-import java.util.Map;
 
 public interface ItemService {
-    ItemOnlyResponseDto create(Long ownerId, ItemRequestDto itemRequestDto);
+    ItemOnlyResponseDto create(Long ownerId, CreateItemRequestDto createItemRequestDto);
 
-    ItemOnlyResponseDto update(Long ownerId, Long itemId, Map<String, String> itemParts);
+    ItemOnlyResponseDto update(Long ownerId, Long itemId, UpdateItemRequestDto updateItem);
 
     Item getItemById(Long itemId);
 
