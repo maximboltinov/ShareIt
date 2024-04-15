@@ -12,6 +12,8 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.JpaCommentRepository;
 import ru.practicum.shareit.item.repository.JpaItemRepository;
+import ru.practicum.shareit.itemRequest.model.ItemRequest;
+import ru.practicum.shareit.itemRequest.repository.JpaItemRequestRepository;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
@@ -25,6 +27,7 @@ public class ItemServiceImpl implements ItemService {
     private JpaBookingRepository bookingRepository;
     private JpaItemRepository itemRepository;
     private JpaCommentRepository jpaCommentRepository;
+    private JpaItemRequestRepository jpaItemRequestRepository;
 
     @Override
     public ItemOnlyResponseDto create(Long ownerId, CreateItemRequestDto createItemRequestDto) {
@@ -32,8 +35,19 @@ public class ItemServiceImpl implements ItemService {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
 
-        Item item = ItemDtoMapper.mapperToItem(createItemRequestDto);
-        item.setOwnerId(ownerId);
+        ItemRequest itemRequest = null;
+
+        if (createItemRequestDto.getRequestId() != null) {
+            Optional<ItemRequest> optionalItemRequest = jpaItemRequestRepository.findById(
+                    createItemRequestDto.getRequestId());
+            if (optionalItemRequest.isPresent()) {
+                itemRequest = optionalItemRequest.get();
+            } else {
+                throw new ObjectNotFoundException("запрос на добавление вещи не найден");
+            }
+        }
+
+        Item item = ItemDtoMapper.mapperToItem(createItemRequestDto, ownerId, itemRequest);
 
         return ItemDtoMapper.mapperToItemOutDto(itemRepository.save(item));
     }
