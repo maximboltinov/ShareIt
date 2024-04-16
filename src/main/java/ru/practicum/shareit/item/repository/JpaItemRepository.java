@@ -14,4 +14,6 @@ public interface JpaItemRepository extends JpaRepository<Item, Long> {
             "(lower(it.name) like lower(concat('%',?1,'%')) " +
             "or (lower(it.description) like lower(concat('%',?1,'%'))))")
     List<Item> some(String text);
+
+    Optional<List<Item>> findByItemRequest_Author_IdOrderById(Long authorId);
 }
