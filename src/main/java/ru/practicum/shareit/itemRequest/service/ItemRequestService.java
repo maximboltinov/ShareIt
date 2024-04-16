@@ -10,4 +10,6 @@ public interface ItemRequestService {
     CreateItemRequestResponseDto create(Long authorId, ItemRequestDto itemRequestDto);
 
     List<GetItemRequestResponseDto> getUserRequests(Long authorId);
+
+    List<GetItemRequestResponseDto> getAllRequestsAnotherUsers(Long userId, Long from, Long size);
 }

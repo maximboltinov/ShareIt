@@ -1,7 +1,13 @@
 package ru.practicum.shareit.itemRequest.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.JpaItemRepository;
@@ -50,20 +56,44 @@ public class ItemRequestServiceImpl implements ItemRequestService {
             throw new ObjectNotFoundException("пользователь не найден");
         }
 
-        List<ItemRequest> itemRequestList = jpaItemRequestRepository
+        List<ItemRequest> requests = jpaItemRequestRepository
                 .findByAuthorIdOrderByCreated(authorId).orElse(List.of());
 
-        List<Item> itemList = jpaItemRepository.findByItemRequest_Author_IdOrderById(authorId).orElse(List.of());
+        List<Item> items = jpaItemRepository.findByItemRequest_Author_IdOrderById(authorId).orElse(List.of());
 
-        List<GetItemRequestResponseDto> requestsWithItems = itemRequestList.stream()
+        return toListOfGetItemRequestResponseDto(requests, items);
+    }
+
+    @Override
+    public List<GetItemRequestResponseDto> getAllRequestsAnotherUsers(Long userId, Long from, Long size) {
+        if (from < 0 || size < 0) {
+            throw new BadRequestException("getAllRequestsAnotherUsers", "некорректные параметры страницы");
+        }
+
+        if (!jpaUserRepository.existsById(userId)) {
+            throw new ObjectNotFoundException("не найден пользователь");
+        }
+
+        Pageable pageable = PageRequest.of(Math.toIntExact(from),
+                Math.toIntExact(size),
+                Sort.by(Sort.Direction.DESC, "created"));
+
+        List<ItemRequest> requests = jpaItemRequestRepository.
+                findByAuthorIdNotOrderByCreatedDesc(userId, pageable).getContent();
+
+        List<Item> items = jpaItemRepository.findByItemRequest_Author_IdNotOrderById(userId).orElse(List.of());
+
+        return toListOfGetItemRequestResponseDto(requests, items);
+    }
+
+    private List<GetItemRequestResponseDto> toListOfGetItemRequestResponseDto (List<ItemRequest> requests,
+                                                                               List<Item> items) {
+        return requests.stream()
                 .map(requestEntity -> ItemRequestDtoMapper.toGetItemRequestResponseDto(requestEntity,
-                        itemList.stream()
+                        items.stream()
                                 .filter(itemEntity ->
                                         Objects.equals(itemEntity.getItemRequest().getId(), requestEntity.getId()))
                                 .collect(Collectors.toList())))
                 .collect(Collectors.toList());
-
-
-        return requestsWithItems;
     }
 }

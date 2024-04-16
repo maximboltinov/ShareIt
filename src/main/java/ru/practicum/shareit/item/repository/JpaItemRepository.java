@@ -16,4 +16,6 @@ public interface JpaItemRepository extends JpaRepository<Item, Long> {
     List<Item> some(String text);
 
     Optional<List<Item>> findByItemRequest_Author_IdOrderById(Long authorId);
+
+    Optional<List<Item>> findByItemRequest_Author_IdNotOrderById(Long authorId);
 }
