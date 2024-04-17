@@ -44,4 +44,13 @@ public class ItemRequestController {
         log.info("Отправлен ответ GET /requests/all?from={}&size{} authorId = {} {}", from, size, userId, requests);
         return requests;
     }
+
+    @GetMapping("/{requestId}")
+    public GetItemRequestResponseDto getRequestById(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                    @PathVariable Long requestId) {
+        log.info("Запрос GET /requests/{}", requestId);
+        GetItemRequestResponseDto request = itemRequestService.getRequestById(requestId, userId);
+        log.info("Отправлен ответ GET /requests/{} {}", requestId, request);
+        return request;
+    }
 }

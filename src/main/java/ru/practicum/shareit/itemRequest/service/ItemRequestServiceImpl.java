@@ -1,12 +1,10 @@
 package ru.practicum.shareit.itemRequest.service;
 
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.item.model.Item;
@@ -84,6 +82,23 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         List<Item> items = jpaItemRepository.findByItemRequest_Author_IdNotOrderById(userId).orElse(List.of());
 
         return toListOfGetItemRequestResponseDto(requests, items);
+    }
+
+    @Override
+    public GetItemRequestResponseDto getRequestById(Long requestId, Long userId) {
+        if (!jpaUserRepository.existsById(userId)) {
+            throw new ObjectNotFoundException("пользователь не найден");
+        }
+
+        ItemRequest request = jpaItemRequestRepository.findById(requestId).orElse(null);
+
+        if (request == null) {
+            throw new ObjectNotFoundException("запрос не найден");
+        }
+
+        List<Item> items = jpaItemRepository.findItemByItemRequest_IdOrderById(requestId).orElse(List.of());
+
+        return ItemRequestDtoMapper.toGetItemRequestResponseDto(request, items);
     }
 
     private List<GetItemRequestResponseDto> toListOfGetItemRequestResponseDto (List<ItemRequest> requests,
