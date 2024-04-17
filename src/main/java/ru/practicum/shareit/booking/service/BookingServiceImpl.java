@@ -1,6 +1,9 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingDtoMapper;
@@ -28,6 +31,7 @@ public class BookingServiceImpl implements BookingService {
     private final JpaBookingRepository bookingRepository;
     private final ItemService itemService;
     private final UserService userService;
+    private final JpaBookingRepository jpaBookingRepository;
 
     @Override
     public BookingResponseDto create(Long bookerId, BookingRequestDto bookingRequestDto) {
@@ -97,13 +101,58 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingResponseDto> getBookingsByBookerId(Long bookerId, String state) {
+    public List<BookingResponseDto> getBookingsByBookerId(Long bookerId, String state, Long from, Long size) {
         if (!userService.isPresent(bookerId)) {
             throw new ObjectNotFoundException("не найден пользователь");
         }
 
-        List<Booking> bookingList = bookingRepository.getBookingsByBookerId(bookerId);
-        return filteredEndSorted(bookingList, state).stream()
+        if (from < 0 || size <= 0) {
+            throw new BadRequestException("getBookingsByBookerId", "некорректные параметры страницы");
+        }
+
+        Pageable pageable = PageRequest.of(Math.toIntExact(from) / Math.toIntExact(size),
+                Math.toIntExact(size),
+                Sort.by(Sort.Direction.DESC, "start"));
+
+        List<Booking> bookings;
+        LocalDateTime now = LocalDateTime.now();
+
+        switch (state) {
+            case "ALL":
+                bookings = jpaBookingRepository
+                        .getBookingByBooker_Id(bookerId, pageable)
+                        .getContent();
+                break;
+            case "CURRENT":
+                bookings = jpaBookingRepository
+                        .getBookingByBooker_IdAndStartBeforeAndEndAfter(bookerId, now, now, pageable)
+                        .getContent();
+                break;
+            case "PAST"://завершенные
+                bookings = jpaBookingRepository
+                        .getBookingByBooker_IdAndEndBefore(bookerId, now, pageable)
+                        .getContent();
+                break;
+            case "FUTURE"://будущие
+                bookings = jpaBookingRepository
+                        .getBookingByBooker_IdAndStartAfterAndEndAfter(bookerId, now, now, pageable)
+                        .getContent();
+                break;
+            case "WAITING"://ожидающие подтверждения
+                bookings = jpaBookingRepository.
+                        getBookingByBooker_IdAndStatus(bookerId, BookingStatus.WAITING, pageable)
+                        .getContent();
+                break;
+            case "REJECTED"://отклоненные
+                bookings = jpaBookingRepository.
+                        getBookingByBooker_IdAndStatus(bookerId, BookingStatus.REJECTED, pageable)
+                        .getContent();
+                break;
+            default:
+                throw new BadRequestException("error", "Unknown state: UNSUPPORTED_STATUS");
+        }
+
+        return bookings.stream()
                 .map(BookingDtoMapper::mapperToBookingResponseDto)
                 .collect(Collectors.toList());
     }
