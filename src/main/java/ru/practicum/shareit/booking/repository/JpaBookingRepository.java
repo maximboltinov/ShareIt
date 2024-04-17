@@ -26,7 +26,19 @@ public interface JpaBookingRepository extends JpaRepository<Booking, Long> {
 
     Page<Booking> getBookingByBooker_IdAndStatus(Long bookerId, BookingStatus status, Pageable pageable);
 
-    List<Booking> getBookingsByItem_OwnerId(Long ownerId);
+    //List<Booking> getBookingsByItem_OwnerId(Long ownerId);
+
+    Page<Booking> getBookingByItem_OwnerId(Long ownerId, Pageable pageable);
+
+    Page<Booking> getBookingByItem_OwnerIdAndStartBeforeAndEndAfter(Long ownerId, LocalDateTime timeForStart,
+                                                                 LocalDateTime timeForEnd, Pageable pageable);
+
+    Page<Booking> getBookingByItem_OwnerIdAndEndBefore(Long ownerId, LocalDateTime timeForEnd, Pageable pageable);
+
+    Page<Booking> getBookingByItem_OwnerIdAndStartAfterAndEndAfter(Long ownerId, LocalDateTime timeForStart,
+                                                                LocalDateTime timeForEnd, Pageable pageable);
+
+    Page<Booking> getBookingByItem_OwnerIdAndStatus(Long ownerId, BookingStatus status, Pageable pageable);
 
     @Query("select new ru.practicum.shareit.booking.dto.ShortBooking( " +
             "booking.id, booker.id, booking.start, booking.end, item.ownerId) " +

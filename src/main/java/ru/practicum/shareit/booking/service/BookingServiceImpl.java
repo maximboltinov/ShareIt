@@ -19,7 +19,6 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -158,61 +157,59 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingResponseDto> getBookingsByOwnerId(Long ownerId, String state) {
+    public List<BookingResponseDto> getBookingsByOwnerId(Long ownerId, String state, Long from, Long size) {
         if (!userService.isPresent(ownerId)) {
             throw new ObjectNotFoundException("не найден пользователь");
         }
 
-        List<Booking> bookingList = bookingRepository.getBookingsByItem_OwnerId(ownerId);
-        return filteredEndSorted(bookingList, state).stream()
-                .map(BookingDtoMapper::mapperToBookingResponseDto)
-                .collect(Collectors.toList());
-    }
+        if (from < 0 || size <= 0) {
+            throw new BadRequestException("getBookingsByBookerId", "некорректные параметры страницы");
+        }
 
-    private List<Booking> filteredEndSorted(List<Booking> bookingList, String state) {
-        List<Booking> outBookingList;
+        Pageable pageable = PageRequest.of(Math.toIntExact(from) / Math.toIntExact(size),
+                Math.toIntExact(size),
+                Sort.by(Sort.Direction.DESC, "start"));
+
+        List<Booking> bookings;
+        LocalDateTime now = LocalDateTime.now();
 
         switch (state) {
             case "ALL":
-                outBookingList = bookingList.stream()
-                        .sorted(Comparator.comparing(Booking::getId).reversed())
-                        .collect(Collectors.toList());
+                bookings = jpaBookingRepository
+                        .getBookingByItem_OwnerId(ownerId, pageable)
+                        .getContent();
                 break;
             case "CURRENT":
-                outBookingList = bookingList.stream()
-                        .filter(entity -> entity.getStart().isBefore(LocalDateTime.now())
-                                && entity.getEnd().isAfter(LocalDateTime.now()))
-                        .sorted(Comparator.comparing(Booking::getId))
-                        .collect(Collectors.toList());
+                bookings = jpaBookingRepository
+                        .getBookingByItem_OwnerIdAndStartBeforeAndEndAfter(ownerId, now, now, pageable)
+                        .getContent();
                 break;
             case "PAST"://завершенные
-                outBookingList = bookingList.stream()
-                        .filter(entity -> entity.getEnd().isBefore(LocalDateTime.now()))
-                        .sorted(Comparator.comparing(Booking::getId).reversed())
-                        .collect(Collectors.toList());
+                bookings = jpaBookingRepository
+                        .getBookingByItem_OwnerIdAndEndBefore(ownerId, now, pageable)
+                        .getContent();
                 break;
             case "FUTURE"://будущие
-                outBookingList = bookingList.stream()
-                        .filter(entity -> entity.getStart().isAfter(LocalDateTime.now()))
-                        .sorted(Comparator.comparing(Booking::getId).reversed())
-                        .collect(Collectors.toList());
+                bookings = jpaBookingRepository
+                        .getBookingByItem_OwnerIdAndStartAfterAndEndAfter(ownerId, now, now, pageable)
+                        .getContent();
                 break;
             case "WAITING"://ожидающие подтверждения
-                outBookingList = bookingList.stream()
-                        .filter(entity -> entity.getStatus().equals(BookingStatus.WAITING))
-                        .sorted(Comparator.comparing(Booking::getId).reversed())
-                        .collect(Collectors.toList());
+                bookings = jpaBookingRepository.
+                        getBookingByItem_OwnerIdAndStatus(ownerId, BookingStatus.WAITING, pageable)
+                        .getContent();
                 break;
             case "REJECTED"://отклоненные
-                outBookingList = bookingList.stream()
-                        .filter(entity -> entity.getStatus().equals(BookingStatus.REJECTED))
-                        .sorted(Comparator.comparing(Booking::getId).reversed())
-                        .collect(Collectors.toList());
+                bookings = jpaBookingRepository.
+                        getBookingByItem_OwnerIdAndStatus(ownerId, BookingStatus.REJECTED, pageable)
+                        .getContent();
                 break;
             default:
                 throw new BadRequestException("error", "Unknown state: UNSUPPORTED_STATUS");
         }
 
-        return outBookingList;
+        return bookings.stream()
+                .map(BookingDtoMapper::mapperToBookingResponseDto)
+                .collect(Collectors.toList());
     }
 }
