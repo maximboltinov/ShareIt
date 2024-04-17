@@ -64,7 +64,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public List<GetItemRequestResponseDto> getAllRequestsAnotherUsers(Long userId, Long from, Long size) {
-        if (from < 0 || size < 0) {
+        if (from < 0 || size <= 0) {
             throw new BadRequestException("getAllRequestsAnotherUsers", "некорректные параметры страницы");
         }
 
@@ -72,7 +72,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
             throw new ObjectNotFoundException("не найден пользователь");
         }
 
-        Pageable pageable = PageRequest.of(Math.toIntExact(from),
+        Pageable pageable = PageRequest.of(Math.toIntExact(from) / Math.toIntExact(size),
                 Math.toIntExact(size),
                 Sort.by(Sort.Direction.DESC, "created"));
 
