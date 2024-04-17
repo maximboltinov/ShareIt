@@ -56,7 +56,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemOnlyResponseDto update(Long ownerId, Long itemId, UpdateItemRequestDto updateItem/*Map<String, String> itemParts*/) {
+    public ItemOnlyResponseDto update(Long ownerId, Long itemId, UpdateItemRequestDto updateItem) {
         if (userService.getUserById(ownerId) == null) {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
@@ -151,12 +151,20 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemOnlyResponseDto> searchByText(String textForSearch) {
+    public List<ItemOnlyResponseDto> searchByText(String textForSearch, Long from, Long size) {
         if (textForSearch.isBlank()) {
             return new ArrayList<>();
         }
 
-        return itemRepository.some(textForSearch).stream()
+        if (from < 0 || size <= 0) {
+            throw new BadRequestException("ItemService searchByText", "некорректные параметры страницы");
+        }
+
+        Pageable pageable = PageRequest.of(Math.toIntExact(from) / Math.toIntExact(size),
+                Math.toIntExact(size),
+                Sort.by(Sort.Direction.ASC, "id"));
+
+        return itemRepository.some(textForSearch, pageable).stream()
                 .map(ItemDtoMapper::mapperToItemOutDto)
                 .collect(Collectors.toList());
     }
@@ -188,9 +196,10 @@ public class ItemServiceImpl implements ItemService {
         return CommentDtoMapper.commentCommentOutDtoMapper(jpaCommentRepository.save(comment));
     }
 
-    private ItemBookingCommentsResponseDto addShortBookingsToItemBookerOutDto(ItemBookingCommentsResponseDto itemBookingCommentsResponseDto,
-                                                                              List<ShortBooking> shortBookingList,
-                                                                              LocalDateTime datePoint) {
+    private ItemBookingCommentsResponseDto addShortBookingsToItemBookerOutDto(
+            ItemBookingCommentsResponseDto itemBookingCommentsResponseDto,
+            List<ShortBooking> shortBookingList,
+            LocalDateTime datePoint) {
 
         Optional<ShortBooking> lastBooking = shortBookingList.stream()
                 .filter(booking -> booking.getStart().isBefore(datePoint))

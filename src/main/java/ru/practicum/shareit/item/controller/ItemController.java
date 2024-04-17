@@ -60,9 +60,11 @@ public class ItemController {
 
     @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
-    public List<ItemOnlyResponseDto> searchByText(@RequestParam(name = "text", required = false) String textForSearch) {
+    public List<ItemOnlyResponseDto> searchByText(@RequestParam(name = "text", required = false) String textForSearch,
+                                                  @RequestParam(defaultValue = "0") Long from,
+                                                  @RequestParam(defaultValue = "20") Long size) {
         log.info("Запрос GET /search?text={}", textForSearch);
-        List<ItemOnlyResponseDto> itemOutList = itemService.searchByText(textForSearch);
+        List<ItemOnlyResponseDto> itemOutList = itemService.searchByText(textForSearch, from, size);
         log.info("Отправлен ответ GET /search?text={} {}", textForSearch, itemOutList);
         return itemOutList;
     }
