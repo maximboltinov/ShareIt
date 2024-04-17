@@ -1,6 +1,9 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.ShortBooking;
 import ru.practicum.shareit.booking.model.BookingStatus;
@@ -112,24 +115,27 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemBookingCommentsResponseDto> getByUserId(Long ownerId) {
+    public List<ItemBookingCommentsResponseDto> getByUserId(Long ownerId, Long from, Long size) {
         if (userService.getUserById(ownerId) == null) {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
 
-        Optional<List<Item>> optionalItemList = itemRepository.findByOwnerIdOrderById(ownerId);
-
-        if (optionalItemList.isEmpty()) {
-            return new ArrayList<>();
+        if (from < 0 || size <= 0) {
+            throw new BadRequestException("ItemService getByUserId", "некорректные параметры страницы");
         }
 
-        List<Item> itemList = optionalItemList.get();
+        Pageable pageable = PageRequest.of(Math.toIntExact(from) / Math.toIntExact(size),
+                Math.toIntExact(size),
+                Sort.by(Sort.Direction.ASC, "id"));
+
+        List<Item> items = itemRepository.findItemByOwnerId(ownerId, pageable).getContent();
+
         List<ShortBooking> shortBookingList =
                 bookingRepository.getShortBookingsByItemsOwnerId(ownerId, BookingStatus.APPROVED);
 
         List<ItemBookingCommentsResponseDto> itemBookingCommentsResponseDtoList = new ArrayList<>();
 
-        for (Item item : itemList) {
+        for (Item item : items) {
             List<ShortBooking> shortBookingListForItem = shortBookingList.stream()
                     .filter(entity -> Objects.equals(entity.getItemId(), item.getId()))
                     .sorted(Comparator.comparing(ShortBooking::getStart))

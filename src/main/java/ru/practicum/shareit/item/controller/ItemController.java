@@ -49,9 +49,11 @@ public class ItemController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<ItemBookingCommentsResponseDto> getByUserId(@RequestHeader("X-Sharer-User-Id") Long ownerId) {
+    public List<ItemBookingCommentsResponseDto> getByUserId(@RequestHeader("X-Sharer-User-Id") Long ownerId,
+                                                            @RequestParam(defaultValue = "0") Long from,
+                                                            @RequestParam(defaultValue = "20") Long size) {
         log.info("Запрос GET /items userId {}", ownerId);
-        List<ItemBookingCommentsResponseDto> itemOutList = itemService.getByUserId(ownerId);
+        List<ItemBookingCommentsResponseDto> itemOutList = itemService.getByUserId(ownerId, from, size);
         log.info("Отправлен ответ GET /items userId {} {}", ownerId, itemOutList);
         return itemOutList;
     }
