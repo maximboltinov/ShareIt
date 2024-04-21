@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.user.dto.UpdateUserRequestDto;
 import ru.practicum.shareit.user.dto.UserRequestDto;
 import ru.practicum.shareit.user.dto.UserResponseDto;
 import ru.practicum.shareit.user.service.UserService;
@@ -39,9 +40,9 @@ public class UserController {
 
     @PatchMapping("/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public UserResponseDto update(@PathVariable Long userId, @RequestBody Map<String, String> userParts) {
-        log.info("Запрос PATCH /users/{} userParts = {}", userId, userParts);
-        UserResponseDto user = userService.update(userId, userParts);
+    public UserResponseDto update(@PathVariable Long userId, @RequestBody UpdateUserRequestDto userUpdate) {
+        log.info("Запрос PATCH /users/{} userParts = {}", userId, userUpdate);
+        UserResponseDto user = userService.update(userId, userUpdate);
         log.info("Отправлен ответ PATCH /users/{} {}", userId, user);
         return user;
     }

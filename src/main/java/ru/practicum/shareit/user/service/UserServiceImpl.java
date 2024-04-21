@@ -4,8 +4,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.AvailabilityException;
+import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.EmailValidException;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
+import ru.practicum.shareit.user.dto.UpdateUserRequestDto;
 import ru.practicum.shareit.user.dto.UserRequestDto;
 import ru.practicum.shareit.user.dto.UserDtoMapper;
 import ru.practicum.shareit.user.dto.UserResponseDto;
@@ -13,7 +15,6 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.JpaUserRepository;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -35,6 +36,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserById(Long userId) {
+        if(userId == null) {
+            throw new BadRequestException("getUserById", "id пользователя не может быть null");
+        }
+
         Optional<User> user = userRepository.findById(userId);
         if (user.isEmpty()) {
             throw new ObjectNotFoundException(String.format("Нет пользователя с id = %s", userId));
@@ -43,16 +48,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDto update(Long userId, Map<String, String> userParts) {
-        User user = getUserById(userId);
-
-        if (userParts.containsKey("name") && !userParts.get("name").isBlank()) {
-            user.setName(userParts.get("name"));
+    public UserResponseDto update(Long userId, UpdateUserRequestDto userUpdate) {
+        if (userUpdate == null) {
+            throw new BadRequestException("UserServiceImpl update", "данные для обновления не могут быть null");
         }
 
-        if (userParts.containsKey("email") && !userParts.get("email").isBlank()) {
-            emailValid(userParts.get("email"));
-            user.setEmail(userParts.get("email"));
+        User user = getUserById(userId);
+
+        if (userUpdate.getName() != null && !userUpdate.getName().isBlank()) {
+            user.setName(userUpdate.getName());
+        }
+
+        if (userUpdate.getEmail() != null && !userUpdate.getEmail().isBlank()) {
+            emailValid(userUpdate.getEmail());
+            user.setEmail(userUpdate.getEmail());
         }
 
         return UserDtoMapper.mapperToUserResponseDto(userRepository.save(user));
@@ -60,6 +69,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void delete(Long userId) {
+        if (userId == null) {
+            throw new BadRequestException("UserServiceImpl delete", "userId не может быть null");
+        }
+        if (!userRepository.existsById(userId)) {
+            throw new ObjectNotFoundException("пользователь не найден");
+        }
+
         userRepository.deleteById(userId);
     }
 
