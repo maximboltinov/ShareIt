@@ -30,7 +30,6 @@ public class BookingServiceImpl implements BookingService {
     private final JpaBookingRepository bookingRepository;
     private final ItemService itemService;
     private final UserService userService;
-    private final JpaBookingRepository jpaBookingRepository;
 
     @Override
     public BookingResponseDto create(Long bookerId, BookingRequestDto bookingRequestDto) {
@@ -118,32 +117,32 @@ public class BookingServiceImpl implements BookingService {
 
         switch (state) {
             case "ALL":
-                bookings = jpaBookingRepository
+                bookings = bookingRepository
                         .getBookingByBooker_Id(bookerId, pageable)
                         .getContent();
                 break;
             case "CURRENT":
-                bookings = jpaBookingRepository
+                bookings = bookingRepository
                         .getBookingByBooker_IdAndStartBeforeAndEndAfter(bookerId, now, now, pageable)
                         .getContent();
                 break;
             case "PAST"://завершенные
-                bookings = jpaBookingRepository
+                bookings = bookingRepository
                         .getBookingByBooker_IdAndEndBefore(bookerId, now, pageable)
                         .getContent();
                 break;
             case "FUTURE"://будущие
-                bookings = jpaBookingRepository
+                bookings = bookingRepository
                         .getBookingByBooker_IdAndStartAfterAndEndAfter(bookerId, now, now, pageable)
                         .getContent();
                 break;
             case "WAITING"://ожидающие подтверждения
-                bookings = jpaBookingRepository.
+                bookings = bookingRepository.
                         getBookingByBooker_IdAndStatus(bookerId, BookingStatus.WAITING, pageable)
                         .getContent();
                 break;
             case "REJECTED"://отклоненные
-                bookings = jpaBookingRepository.
+                bookings = bookingRepository.
                         getBookingByBooker_IdAndStatus(bookerId, BookingStatus.REJECTED, pageable)
                         .getContent();
                 break;
@@ -175,32 +174,32 @@ public class BookingServiceImpl implements BookingService {
 
         switch (state) {
             case "ALL":
-                bookings = jpaBookingRepository
+                bookings = bookingRepository
                         .getBookingByItem_OwnerId(ownerId, pageable)
                         .getContent();
                 break;
             case "CURRENT":
-                bookings = jpaBookingRepository
+                bookings = bookingRepository
                         .getBookingByItem_OwnerIdAndStartBeforeAndEndAfter(ownerId, now, now, pageable)
                         .getContent();
                 break;
             case "PAST"://завершенные
-                bookings = jpaBookingRepository
+                bookings = bookingRepository
                         .getBookingByItem_OwnerIdAndEndBefore(ownerId, now, pageable)
                         .getContent();
                 break;
             case "FUTURE"://будущие
-                bookings = jpaBookingRepository
+                bookings = bookingRepository
                         .getBookingByItem_OwnerIdAndStartAfterAndEndAfter(ownerId, now, now, pageable)
                         .getContent();
                 break;
             case "WAITING"://ожидающие подтверждения
-                bookings = jpaBookingRepository.
+                bookings = bookingRepository.
                         getBookingByItem_OwnerIdAndStatus(ownerId, BookingStatus.WAITING, pageable)
                         .getContent();
                 break;
             case "REJECTED"://отклоненные
-                bookings = jpaBookingRepository.
+                bookings = bookingRepository.
                         getBookingByItem_OwnerIdAndStatus(ownerId, BookingStatus.REJECTED, pageable)
                         .getContent();
                 break;
