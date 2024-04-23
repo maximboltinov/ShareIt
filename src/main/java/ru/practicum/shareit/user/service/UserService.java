@@ -6,7 +6,6 @@ import ru.practicum.shareit.user.dto.UserResponseDto;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
-import java.util.Map;
 
 public interface UserService {
     UserResponseDto create(UserRequestDto userRequestDto);

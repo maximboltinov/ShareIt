@@ -61,7 +61,11 @@ public class ItemServiceImpl implements ItemService {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
 
-        Item item = getItemById(itemId).toBuilder().build();
+        if (updateItem == null) {
+            throw new BadRequestException("ItemService update", "updateItem не может быть null");
+        }
+
+        Item item = getItemById(itemId);
 
         if (!Objects.equals(item.getOwnerId(), ownerId)) {
             throw new ObjectNotFoundException("Несоответствие id владельца");
@@ -82,6 +86,10 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item getItemById(Long itemId) {
+        if(itemId == null) {
+            throw new BadRequestException("ItemService getItemById", "itemId не может быть null");
+        }
+
         Optional<Item> item = itemRepository.findById(itemId);
         if (item.isEmpty()) {
             throw new ObjectNotFoundException(String.format("Вещь с id %s не найдена", itemId));
@@ -91,6 +99,14 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemBookingCommentsResponseDto getByItemId(Long itemId, Long userId) {
+        if (userId == null) {
+            throw new BadRequestException("ItemService getByItemId","userId не может быть null");
+        }
+
+        if (!userService.isPresent(userId)) {
+            throw new ObjectNotFoundException("пользователь не найден");
+        }
+
         Item item = getItemById(itemId);
         ItemBookingCommentsResponseDto itemBookingCommentsResponseDto = ItemDtoMapper.mapperToItemBookerOutDto(item);
 

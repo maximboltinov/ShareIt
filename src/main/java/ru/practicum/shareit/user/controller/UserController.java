@@ -11,7 +11,6 @@ import ru.practicum.shareit.user.dto.UserResponseDto;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping(path = "/users")
