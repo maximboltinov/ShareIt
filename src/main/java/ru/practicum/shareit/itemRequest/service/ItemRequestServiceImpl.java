@@ -76,8 +76,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
                 Math.toIntExact(size),
                 Sort.by(Sort.Direction.DESC, "created"));
 
-        List<ItemRequest> requests = jpaItemRequestRepository.
-                findByAuthorIdNotOrderByCreatedDesc(userId, pageable).getContent();
+        List<ItemRequest> requests = jpaItemRequestRepository
+                .findByAuthorIdNotOrderByCreatedDesc(userId, pageable).getContent();
 
         List<Item> items = jpaItemRepository.findByItemRequest_Author_IdNotOrderById(userId).orElse(List.of());
 
@@ -101,8 +101,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         return ItemRequestDtoMapper.toGetItemRequestResponseDto(request, items);
     }
 
-    private List<GetItemRequestResponseDto> toListOfGetItemRequestResponseDto (List<ItemRequest> requests,
-                                                                               List<Item> items) {
+    private List<GetItemRequestResponseDto> toListOfGetItemRequestResponseDto(List<ItemRequest> requests,
+                                                                              List<Item> items) {
         return requests.stream()
                 .map(requestEntity -> ItemRequestDtoMapper.toGetItemRequestResponseDto(requestEntity,
                         items.stream()

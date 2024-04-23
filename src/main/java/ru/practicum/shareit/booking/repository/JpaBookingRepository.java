@@ -14,14 +14,14 @@ import java.util.Optional;
 
 public interface JpaBookingRepository extends JpaRepository<Booking, Long> {
 
-    Page<Booking> getBookingByBooker_Id(Long booker_id, Pageable pageable);
+    Page<Booking> getBookingByBooker_Id(Long bookerId, Pageable pageable);
 
-    Page<Booking> getBookingByBooker_IdAndStartBeforeAndEndAfter(Long booker_id, LocalDateTime timeForStart,
+    Page<Booking> getBookingByBooker_IdAndStartBeforeAndEndAfter(Long bookerId, LocalDateTime timeForStart,
                                                                  LocalDateTime timeForEnd, Pageable pageable);
 
-    Page<Booking> getBookingByBooker_IdAndEndBefore(Long booker_id, LocalDateTime timeForEnd, Pageable pageable);
+    Page<Booking> getBookingByBooker_IdAndEndBefore(Long bookerId, LocalDateTime timeForEnd, Pageable pageable);
 
-    Page<Booking> getBookingByBooker_IdAndStartAfterAndEndAfter(Long booker_id, LocalDateTime timeForStart,
+    Page<Booking> getBookingByBooker_IdAndStartAfterAndEndAfter(Long bookerId, LocalDateTime timeForStart,
                                                                 LocalDateTime timeForEnd, Pageable pageable);
 
     Page<Booking> getBookingByBooker_IdAndStatus(Long bookerId, BookingStatus status, Pageable pageable);
@@ -31,12 +31,12 @@ public interface JpaBookingRepository extends JpaRepository<Booking, Long> {
     Page<Booking> getBookingByItem_OwnerId(Long ownerId, Pageable pageable);
 
     Page<Booking> getBookingByItem_OwnerIdAndStartBeforeAndEndAfter(Long ownerId, LocalDateTime timeForStart,
-                                                                 LocalDateTime timeForEnd, Pageable pageable);
+                                                                    LocalDateTime timeForEnd, Pageable pageable);
 
     Page<Booking> getBookingByItem_OwnerIdAndEndBefore(Long ownerId, LocalDateTime timeForEnd, Pageable pageable);
 
     Page<Booking> getBookingByItem_OwnerIdAndStartAfterAndEndAfter(Long ownerId, LocalDateTime timeForStart,
-                                                                LocalDateTime timeForEnd, Pageable pageable);
+                                                                   LocalDateTime timeForEnd, Pageable pageable);
 
     Page<Booking> getBookingByItem_OwnerIdAndStatus(Long ownerId, BookingStatus status, Pageable pageable);
 

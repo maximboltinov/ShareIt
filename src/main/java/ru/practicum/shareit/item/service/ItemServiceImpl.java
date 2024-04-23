@@ -86,7 +86,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item getItemById(Long itemId) {
-        if(itemId == null) {
+        if (itemId == null) {
             throw new BadRequestException("ItemService getItemById", "itemId не может быть null");
         }
 
@@ -100,7 +100,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemBookingCommentsResponseDto getByItemId(Long itemId, Long userId) {
         if (userId == null) {
-            throw new BadRequestException("ItemService getByItemId","userId не может быть null");
+            throw new BadRequestException("ItemService getByItemId", "userId не может быть null");
         }
 
         if (!userService.isPresent(userId)) {

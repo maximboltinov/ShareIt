@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserById(Long userId) {
-        if(userId == null) {
+        if (userId == null) {
             throw new BadRequestException("getUserById", "id пользователя не может быть null");
         }
 

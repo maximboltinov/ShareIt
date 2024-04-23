@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
 public class BookingResponseDto {
     private Long id;
     private LocalDateTime start;

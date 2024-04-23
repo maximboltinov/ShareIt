@@ -511,8 +511,8 @@ class ItemServiceImplTest {
                 .thenReturn(true);
         when(itemRepository.existsById(anyLong()))
                 .thenReturn(true);
-        when(bookingRepository.
-                countApprovedBookingsForUserAndItemAnEarlyEndDate(anyLong(), anyLong(), any(LocalDateTime.class)))
+        when(bookingRepository
+                .countApprovedBookingsForUserAndItemAnEarlyEndDate(anyLong(), anyLong(), any(LocalDateTime.class)))
                 .thenReturn(Optional.empty());
 
         CommentRequestDto comment = new CommentRequestDto();
@@ -531,8 +531,8 @@ class ItemServiceImplTest {
                 .thenReturn(true);
         when(itemRepository.existsById(anyLong()))
                 .thenReturn(true);
-        when(bookingRepository.
-                countApprovedBookingsForUserAndItemAnEarlyEndDate(anyLong(), anyLong(), any(LocalDateTime.class)))
+        when(bookingRepository
+                .countApprovedBookingsForUserAndItemAnEarlyEndDate(anyLong(), anyLong(), any(LocalDateTime.class)))
                 .thenReturn(Optional.of(1));
 
         User author = new User();
