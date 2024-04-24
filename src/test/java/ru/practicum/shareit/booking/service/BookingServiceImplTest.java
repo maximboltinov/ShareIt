@@ -5,6 +5,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -18,13 +22,13 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class BookingServiceImplTest {
@@ -263,10 +267,266 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void getBookingsByBookerId() {
+    void getBookingsByBookerIdWithUserNotFound() {
+        when(userService.isPresent(anyLong()))
+                .thenReturn(false);
+
+        ObjectNotFoundException exception = assertThrows(ObjectNotFoundException.class,
+                () -> bookingService.getBookingsByBookerId(1L, "ALL", 0L, 1L));
+
+        assertEquals("не найден пользователь", exception.getMessage());
     }
 
     @Test
-    void getBookingsByOwnerId() {
+    void getBookingsByBookerIdWithIncorrectPageParameters() {
+        when(userService.isPresent(anyLong()))
+                .thenReturn(true);
+
+        BadRequestException exception = assertThrows(BadRequestException.class,
+                () -> bookingService.getBookingsByBookerId(1L, "ALL", -1L, 1L));
+
+        assertEquals("некорректные параметры страницы", exception.getMessage());
+
+        BadRequestException exception1 = assertThrows(BadRequestException.class,
+                () -> bookingService.getBookingsByBookerId(1L, "ALL", 0L, 0L));
+
+        assertEquals("некорректные параметры страницы", exception1.getMessage());
+
+        verify(userService, times(2)).isPresent(1L);
+    }
+
+    @Test
+    void getBookingsByBookerIdWithUnknownState() {
+        when(userService.isPresent(anyLong()))
+                .thenReturn(true);
+
+        BadRequestException exception = assertThrows(BadRequestException.class,
+                () -> bookingService.getBookingsByBookerId(1L, "all", 0L, 1L));
+
+        assertEquals("Unknown state: UNSUPPORTED_STATUS", exception.getMessage());
+    }
+
+    @Test
+    void getBookingsByBookerIdCorrectWithStateAll() {
+        when(userService.isPresent(anyLong()))
+                .thenReturn(true);
+
+        Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "start"));
+
+        when(bookingRepository.getBookingByBooker_Id(anyLong(), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(), pageable, 0));
+
+        bookingService.getBookingsByBookerId(1L, "ALL", 0L, 1L);
+
+        verify(bookingRepository).getBookingByBooker_Id(1L, pageable);
+    }
+
+    @Test
+    void getBookingsByBookerIdCorrectWithStateCurrent() {
+        when(userService.isPresent(anyLong()))
+                .thenReturn(true);
+
+        Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "start"));
+
+        when(bookingRepository.getBookingByBooker_IdAndStartBeforeAndEndAfter(anyLong(),
+                any(LocalDateTime.class),
+                any(LocalDateTime.class),
+                any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(), pageable, 0));
+
+        assertDoesNotThrow(() -> bookingService.getBookingsByBookerId(1L, "CURRENT", 0L, 1L));
+    }
+
+    @Test
+    void getBookingsByBookerIdCorrectWithStatePast() {
+        when(userService.isPresent(anyLong()))
+                .thenReturn(true);
+
+        Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "start"));
+
+        when(bookingRepository.getBookingByBooker_IdAndEndBefore(anyLong(),
+                any(LocalDateTime.class),
+                any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(), pageable, 0));
+
+        assertDoesNotThrow(() -> bookingService.getBookingsByBookerId(1L, "PAST", 0L, 1L));
+    }
+
+    @Test
+    void getBookingsByBookerIdCorrectWithStateFuture() {
+        when(userService.isPresent(anyLong()))
+                .thenReturn(true);
+
+        Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "start"));
+
+        when(bookingRepository.getBookingByBooker_IdAndStartAfterAndEndAfter(anyLong(),
+                any(LocalDateTime.class),
+                any(LocalDateTime.class),
+                any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(), pageable, 0));
+
+        assertDoesNotThrow(() -> bookingService.getBookingsByBookerId(1L, "FUTURE", 0L, 1L));
+    }
+
+    @Test
+    void getBookingsByBookerIdCorrectWithStateWaiting() {
+        when(userService.isPresent(anyLong()))
+                .thenReturn(true);
+
+        Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "start"));
+
+        when(bookingRepository.getBookingByBooker_IdAndStatus(anyLong(),
+                any(BookingStatus.class),
+                any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(), pageable, 0));
+
+        assertDoesNotThrow(() -> bookingService.getBookingsByBookerId(1L, "WAITING", 0L, 1L));
+    }
+
+    @Test
+    void getBookingsByBookerIdCorrectWithStateRejected() {
+        when(userService.isPresent(anyLong()))
+                .thenReturn(true);
+
+        Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "start"));
+
+        when(bookingRepository.getBookingByBooker_IdAndStatus(anyLong(),
+                any(BookingStatus.class),
+                any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(), pageable, 0));
+
+        assertDoesNotThrow(() -> bookingService.getBookingsByBookerId(1L, "REJECTED", 0L, 1L));
+    }
+
+    @Test
+    void getBookingsByOwnerIdWithUserNotFound() {
+        when(userService.isPresent(anyLong()))
+                .thenReturn(false);
+
+        ObjectNotFoundException exception = assertThrows(ObjectNotFoundException.class,
+                () -> bookingService.getBookingsByOwnerId(1L, "ALL", 0L, 1L));
+
+        assertEquals("не найден пользователь", exception.getMessage());
+    }
+
+    @Test
+    void getBookingsByOwnerIdWithIncorrectPageParameters() {
+        when(userService.isPresent(anyLong()))
+                .thenReturn(true);
+
+        BadRequestException exception = assertThrows(BadRequestException.class,
+                () -> bookingService.getBookingsByOwnerId(1L, "ALL", -1L, 1L));
+
+        assertEquals("некорректные параметры страницы", exception.getMessage());
+
+        BadRequestException exception1 = assertThrows(BadRequestException.class,
+                () -> bookingService.getBookingsByOwnerId(1L, "ALL", 0L, 0L));
+
+        assertEquals("некорректные параметры страницы", exception1.getMessage());
+
+        verify(userService, times(2)).isPresent(1L);
+    }
+
+    @Test
+    void getBookingsByOwnerIdWithUnknownState() {
+        when(userService.isPresent(anyLong()))
+                .thenReturn(true);
+
+        BadRequestException exception = assertThrows(BadRequestException.class,
+                () -> bookingService.getBookingsByOwnerId(1L, "all", 0L, 1L));
+
+        assertEquals("Unknown state: UNSUPPORTED_STATUS", exception.getMessage());
+    }
+
+    @Test
+    void getBookingsByOwnerIdCorrectWithStateAll() {
+        when(userService.isPresent(anyLong()))
+                .thenReturn(true);
+
+        Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "start"));
+
+        when(bookingRepository.getBookingByItem_OwnerId(anyLong(), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(), pageable, 0));
+
+        bookingService.getBookingsByOwnerId(1L, "ALL", 0L, 1L);
+
+        verify(bookingRepository).getBookingByItem_OwnerId(1L, pageable);
+    }
+
+    @Test
+    void getBookingsByOwnerIdCorrectWithStateCurrent() {
+        when(userService.isPresent(anyLong()))
+                .thenReturn(true);
+
+        Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "start"));
+
+        when(bookingRepository.getBookingByItem_OwnerIdAndStartBeforeAndEndAfter(anyLong(),
+                any(LocalDateTime.class),
+                any(LocalDateTime.class),
+                any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(), pageable, 0));
+
+        assertDoesNotThrow(() -> bookingService.getBookingsByOwnerId(1L, "CURRENT", 0L, 1L));
+    }
+
+    @Test
+    void getBookingsByOwnerIdCorrectWithStatePast() {
+        when(userService.isPresent(anyLong()))
+                .thenReturn(true);
+
+        Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "start"));
+
+        when(bookingRepository.getBookingByItem_OwnerIdAndEndBefore(anyLong(),
+                any(LocalDateTime.class),
+                any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(), pageable, 0));
+
+        assertDoesNotThrow(() -> bookingService.getBookingsByOwnerId(1L, "PAST", 0L, 1L));
+    }
+
+    @Test
+    void getBookingsByOwnerIdCorrectWithStateFuture() {
+        when(userService.isPresent(anyLong()))
+                .thenReturn(true);
+
+        Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "start"));
+
+        when(bookingRepository.getBookingByItem_OwnerIdAndStartAfterAndEndAfter(anyLong(),
+                any(LocalDateTime.class),
+                any(LocalDateTime.class),
+                any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(), pageable, 0));
+
+        assertDoesNotThrow(() -> bookingService.getBookingsByOwnerId(1L, "FUTURE", 0L, 1L));
+    }
+
+    @Test
+    void getBookingsByOwnerIdCorrectWithStateWaiting() {
+        when(userService.isPresent(anyLong()))
+                .thenReturn(true);
+
+        Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "start"));
+
+        when(bookingRepository.getBookingByItem_OwnerIdAndStatus(anyLong(),
+                any(BookingStatus.class),
+                any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(), pageable, 0));
+
+        assertDoesNotThrow(() -> bookingService.getBookingsByOwnerId(1L, "WAITING", 0L, 1L));
+    }
+
+    @Test
+    void getBookingsByOwnerIdCorrectWithStateRejected() {
+        when(userService.isPresent(anyLong()))
+                .thenReturn(true);
+
+        Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "start"));
+
+        when(bookingRepository.getBookingByItem_OwnerIdAndStatus(anyLong(),
+                any(BookingStatus.class),
+                any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(), pageable, 0));
+
+        assertDoesNotThrow(() -> bookingService.getBookingsByOwnerId(1L, "REJECTED", 0L, 1L));
     }
 }

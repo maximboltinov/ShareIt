@@ -26,8 +26,6 @@ public interface JpaBookingRepository extends JpaRepository<Booking, Long> {
 
     Page<Booking> getBookingByBooker_IdAndStatus(Long bookerId, BookingStatus status, Pageable pageable);
 
-    //List<Booking> getBookingsByItem_OwnerId(Long ownerId);
-
     Page<Booking> getBookingByItem_OwnerId(Long ownerId, Pageable pageable);
 
     Page<Booking> getBookingByItem_OwnerIdAndStartBeforeAndEndAfter(Long ownerId, LocalDateTime timeForStart,
