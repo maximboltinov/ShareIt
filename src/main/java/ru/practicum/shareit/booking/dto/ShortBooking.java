@@ -2,15 +2,13 @@ package ru.practicum.shareit.booking.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.springframework.lang.NonNull;
 
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
-@Getter
-@Setter
+@Data
 public class ShortBooking implements Comparable<ShortBooking> {
     private Long id;
     private Long bookerId;
