@@ -1,5 +1,6 @@
 package ru.practicum.shareit.itemRequest.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import ru.practicum.shareit.user.model.User;
 
@@ -16,6 +17,7 @@ public class ItemRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String description;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS")
     private LocalDateTime created;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "author_id")
