@@ -114,56 +114,65 @@ class ItemControllerTest {
                 .andExpect(status().isOk());
 
         verify(itemService).update(1L, 1L, updateItemRequestDto);
+
+        updateItemRequestDto.setId(null);
+
+        mockMvc.perform(patch("/items/{itemId}", itemId)
+                        .header("X-Sharer-User-Id", "1")
+                        .content(objectMapper.writeValueAsString(updateItemRequestDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(itemService).update(1L, 1L, updateItemRequestDto);
+
+        updateItemRequestDto.setName("");
+
+        mockMvc.perform(patch("/items/{itemId}", itemId)
+                        .header("X-Sharer-User-Id", "1")
+                        .content(objectMapper.writeValueAsString(updateItemRequestDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(itemService).update(1L, 1L, updateItemRequestDto);
+
+        updateItemRequestDto.setDescription("");
+
+        mockMvc.perform(patch("/items/{itemId}", itemId)
+                        .header("X-Sharer-User-Id", "1")
+                        .content(objectMapper.writeValueAsString(updateItemRequestDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(itemService).update(1L, 1L, updateItemRequestDto);
+
+        updateItemRequestDto.setAvailable(null);
+
+        mockMvc.perform(patch("/items/{itemId}", itemId)
+                        .header("X-Sharer-User-Id", "1")
+                        .content(objectMapper.writeValueAsString(updateItemRequestDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(itemService).update(1L, 1L, updateItemRequestDto);
     }
 
     @SneakyThrows
     @Test
     void updateWithIncorrectValuesInContent() {
-        UpdateItemRequestDto updateItemRequestDto = new UpdateItemRequestDto(null,
+        UpdateItemRequestDto updateItemRequestDto = new UpdateItemRequestDto(-1L,
                 "newName",
                 "newDescription",
                 false);
 
         String itemId = "1";
-
-        mockMvc.perform(patch("/items/{itemId}", itemId)
-                        .header("X-Sharer-User-Id", "1")
-                        .content(objectMapper.writeValueAsString(updateItemRequestDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
-        verify(itemService, never()).update(1L, 1L, updateItemRequestDto);
-
-        updateItemRequestDto.setId(1L);
-        updateItemRequestDto.setName(null);
-
-        mockMvc.perform(patch("/items/{itemId}", itemId)
-                        .header("X-Sharer-User-Id", "1")
-                        .content(objectMapper.writeValueAsString(updateItemRequestDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
-        verify(itemService, never()).update(1L, 1L, updateItemRequestDto);
-
-        updateItemRequestDto.setName("name");
-        updateItemRequestDto.setDescription(null);
-
-        mockMvc.perform(patch("/items/{itemId}", itemId)
-                        .header("X-Sharer-User-Id", "1")
-                        .content(objectMapper.writeValueAsString(updateItemRequestDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
-        verify(itemService, never()).update(1L, 1L, updateItemRequestDto);
-
-        updateItemRequestDto.setDescription("description");
-        updateItemRequestDto.setAvailable(null);
 
         mockMvc.perform(patch("/items/{itemId}", itemId)
                         .header("X-Sharer-User-Id", "1")
