@@ -30,7 +30,7 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     @ResponseStatus(HttpStatus.OK)
     public ItemOnlyResponseDto update(@RequestHeader("X-Sharer-User-Id") Long ownerId, @PathVariable Long itemId,
-                                      @RequestBody UpdateItemRequestDto updateItem) {
+                                      @RequestBody @Validated UpdateItemRequestDto updateItem) {
         log.info("Запрос PATCH /items/{} ownerId = {} itemParts = {}", itemId, ownerId, updateItem);
         ItemOnlyResponseDto responseItemOut = itemService.update(ownerId, itemId, updateItem);
         log.info("Отправлен ответ PATCH /items/{} {}", itemId, responseItemOut);
