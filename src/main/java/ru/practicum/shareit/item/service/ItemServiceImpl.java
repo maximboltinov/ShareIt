@@ -41,8 +41,8 @@ public class ItemServiceImpl implements ItemService {
         ItemRequest itemRequest = null;
 
         if (createItemRequestDto.getRequestId() != null) {
-            itemRequest = jpaItemRequestRepository.findById(createItemRequestDto.getRequestId()).
-                    orElseThrow(() -> new ObjectNotFoundException("запрос на добавление вещи не найден"));
+            itemRequest = jpaItemRequestRepository.findById(createItemRequestDto.getRequestId())
+                    .orElseThrow(() -> new ObjectNotFoundException("запрос на добавление вещи не найден"));
         }
 
         Item item = ItemDtoMapper.mapperToItem(createItemRequestDto, ownerId, itemRequest);
