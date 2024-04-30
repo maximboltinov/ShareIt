@@ -1,13 +1,13 @@
-package ru.practicum.shareit.itemRequest.controller;
+package ru.practicum.shareit.itemrequest.controller;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.itemRequest.dto.CreateItemRequestResponseDto;
-import ru.practicum.shareit.itemRequest.dto.GetItemRequestResponseDto;
-import ru.practicum.shareit.itemRequest.dto.ItemRequestDto;
-import ru.practicum.shareit.itemRequest.service.ItemRequestService;
+import ru.practicum.shareit.itemrequest.dto.CreateItemRequestResponseDto;
+import ru.practicum.shareit.itemrequest.dto.GetItemRequestResponseDto;
+import ru.practicum.shareit.itemrequest.dto.ItemRequestDto;
+import ru.practicum.shareit.itemrequest.service.ItemRequestService;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ import java.util.List;
 @Slf4j
 @AllArgsConstructor
 public class ItemRequestController {
-    private ItemRequestService itemRequestService;
+    private final ItemRequestService itemRequestService;
 
     @PostMapping
     public CreateItemRequestResponseDto create(@RequestHeader("X-Sharer-User-Id") Long authorId,

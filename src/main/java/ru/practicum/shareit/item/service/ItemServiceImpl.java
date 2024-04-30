@@ -15,8 +15,8 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.JpaCommentRepository;
 import ru.practicum.shareit.item.repository.JpaItemRepository;
-import ru.practicum.shareit.itemRequest.model.ItemRequest;
-import ru.practicum.shareit.itemRequest.repository.JpaItemRequestRepository;
+import ru.practicum.shareit.itemrequest.model.ItemRequest;
+import ru.practicum.shareit.itemrequest.repository.JpaItemRequestRepository;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
@@ -26,11 +26,11 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class ItemServiceImpl implements ItemService {
-    private UserService userService;
-    private JpaBookingRepository bookingRepository;
-    private JpaItemRepository itemRepository;
-    private JpaCommentRepository jpaCommentRepository;
-    private JpaItemRequestRepository jpaItemRequestRepository;
+    private final UserService userService;
+    private final JpaBookingRepository bookingRepository;
+    private final JpaItemRepository itemRepository;
+    private final JpaCommentRepository jpaCommentRepository;
+    private final JpaItemRequestRepository jpaItemRequestRepository;
 
     @Override
     public ItemOnlyResponseDto create(Long ownerId, CreateItemRequestDto createItemRequestDto) {
@@ -41,13 +41,8 @@ public class ItemServiceImpl implements ItemService {
         ItemRequest itemRequest = null;
 
         if (createItemRequestDto.getRequestId() != null) {
-            Optional<ItemRequest> optionalItemRequest = jpaItemRequestRepository.findById(
-                    createItemRequestDto.getRequestId());
-            if (optionalItemRequest.isPresent()) {
-                itemRequest = optionalItemRequest.get();
-            } else {
-                throw new ObjectNotFoundException("запрос на добавление вещи не найден");
-            }
+            itemRequest = jpaItemRequestRepository.findById(createItemRequestDto.getRequestId()).
+                    orElseThrow(() -> new ObjectNotFoundException("запрос на добавление вещи не найден"));
         }
 
         Item item = ItemDtoMapper.mapperToItem(createItemRequestDto, ownerId, itemRequest);
@@ -90,11 +85,8 @@ public class ItemServiceImpl implements ItemService {
             throw new BadRequestException("ItemService getItemById", "itemId не может быть null");
         }
 
-        Optional<Item> item = itemRepository.findById(itemId);
-        if (item.isEmpty()) {
-            throw new ObjectNotFoundException(String.format("Вещь с id %s не найдена", itemId));
-        }
-        return item.get();
+        return itemRepository.findById(itemId)
+                .orElseThrow(() -> new ObjectNotFoundException(String.format("Вещь с id %s не найдена", itemId)));
     }
 
     @Override

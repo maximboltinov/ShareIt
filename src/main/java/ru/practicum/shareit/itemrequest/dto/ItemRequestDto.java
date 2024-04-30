@@ -1,4 +1,4 @@
-package ru.practicum.shareit.itemRequest.dto;
+package ru.practicum.shareit.itemrequest.dto;
 
 import lombok.*;
 import org.hibernate.validator.constraints.Length;

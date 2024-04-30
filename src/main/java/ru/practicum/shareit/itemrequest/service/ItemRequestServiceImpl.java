@@ -1,4 +1,4 @@
-package ru.practicum.shareit.itemRequest.service;
+package ru.practicum.shareit.itemrequest.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -9,38 +9,32 @@ import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.JpaItemRepository;
-import ru.practicum.shareit.itemRequest.dto.CreateItemRequestResponseDto;
-import ru.practicum.shareit.itemRequest.dto.GetItemRequestResponseDto;
-import ru.practicum.shareit.itemRequest.dto.ItemRequestDto;
-import ru.practicum.shareit.itemRequest.dto.ItemRequestDtoMapper;
-import ru.practicum.shareit.itemRequest.model.ItemRequest;
-import ru.practicum.shareit.itemRequest.repository.JpaItemRequestRepository;
+import ru.practicum.shareit.itemrequest.dto.CreateItemRequestResponseDto;
+import ru.practicum.shareit.itemrequest.dto.GetItemRequestResponseDto;
+import ru.practicum.shareit.itemrequest.dto.ItemRequestDto;
+import ru.practicum.shareit.itemrequest.dto.ItemRequestDtoMapper;
+import ru.practicum.shareit.itemrequest.model.ItemRequest;
+import ru.practicum.shareit.itemrequest.repository.JpaItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.JpaUserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class ItemRequestServiceImpl implements ItemRequestService {
-    private JpaUserRepository jpaUserRepository;
-    private JpaItemRequestRepository jpaItemRequestRepository;
-    private JpaItemRepository jpaItemRepository;
+    private final JpaUserRepository jpaUserRepository;
+    private final JpaItemRequestRepository jpaItemRequestRepository;
+    private final JpaItemRepository jpaItemRepository;
 
     @Override
     public CreateItemRequestResponseDto create(Long authorId, ItemRequestDto itemRequestDto) {
-        Optional<User> userOptional = jpaUserRepository.findById(authorId);
-        User user;
-
-        if (userOptional.isPresent()) {
-            user = userOptional.get();
-        } else {
-            throw new ObjectNotFoundException(String.format("Пользователь с id = %s не найден", authorId));
-        }
+        User user = jpaUserRepository.findById(authorId)
+                .orElseThrow(() ->
+                        new ObjectNotFoundException(String.format("Пользователь с id = %s не найден", authorId)));
 
         ItemRequest itemRequest = jpaItemRequestRepository.save(
                 ItemRequestDtoMapper.itemRequestDtoToItemRequest(user, itemRequestDto, LocalDateTime.now()));
@@ -90,11 +84,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
             throw new ObjectNotFoundException("пользователь не найден");
         }
 
-        ItemRequest request = jpaItemRequestRepository.findById(requestId).orElse(null);
-
-        if (request == null) {
-            throw new ObjectNotFoundException("запрос не найден");
-        }
+        ItemRequest request = jpaItemRequestRepository.findById(requestId)
+                .orElseThrow(() -> new ObjectNotFoundException("запрос не найден"));
 
         List<Item> items = jpaItemRepository.findItemByItemRequest_IdOrderById(requestId).orElse(List.of());
 

@@ -15,7 +15,6 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.JpaUserRepository;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -40,11 +39,8 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException("getUserById", "id пользователя не может быть null");
         }
 
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isEmpty()) {
-            throw new ObjectNotFoundException(String.format("Нет пользователя с id = %s", userId));
-        }
-        return user.get();
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ObjectNotFoundException(String.format("Нет пользователя с id = %s", userId)));
     }
 
     @Override

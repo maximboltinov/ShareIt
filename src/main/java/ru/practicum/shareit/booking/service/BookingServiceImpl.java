@@ -21,7 +21,6 @@ import ru.practicum.shareit.user.service.UserService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,13 +56,8 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingResponseDto updateApprove(Long itemOwnerId, Long bookingId, Boolean approved) {
-        Optional<Booking> optionalBooking = bookingRepository.findById(bookingId);
-        Booking booking;
-        if (optionalBooking.isPresent()) {
-            booking = optionalBooking.get();
-        } else {
-            throw new BadRequestException("updateApprove", "не найден booking");
-        }
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new BadRequestException("updateApprove", "не найден booking"));
 
         if (booking.getStatus() == BookingStatus.APPROVED) {
             throw new BadRequestException("updateApprove", "изменение статуса после согласования");

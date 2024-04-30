@@ -1,4 +1,4 @@
-package ru.practicum.shareit.itemRequest.controller;
+package ru.practicum.shareit.itemrequest.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -8,8 +8,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.itemRequest.dto.ItemRequestDto;
-import ru.practicum.shareit.itemRequest.service.ItemRequestService;
+import ru.practicum.shareit.itemrequest.dto.ItemRequestDto;
+import ru.practicum.shareit.itemrequest.service.ItemRequestService;
 
 import java.nio.charset.StandardCharsets;
 

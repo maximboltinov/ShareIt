@@ -1,4 +1,4 @@
-package ru.practicum.shareit.itemRequest.model;
+package ru.practicum.shareit.itemrequest.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;

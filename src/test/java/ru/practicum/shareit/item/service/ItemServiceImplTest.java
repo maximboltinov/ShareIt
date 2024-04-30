@@ -19,8 +19,8 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.JpaCommentRepository;
 import ru.practicum.shareit.item.repository.JpaItemRepository;
-import ru.practicum.shareit.itemRequest.model.ItemRequest;
-import ru.practicum.shareit.itemRequest.repository.JpaItemRequestRepository;
+import ru.practicum.shareit.itemrequest.model.ItemRequest;
+import ru.practicum.shareit.itemrequest.repository.JpaItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 

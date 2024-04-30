@@ -1,7 +1,7 @@
 package ru.practicum.shareit.item.model;
 
 import lombok.*;
-import ru.practicum.shareit.itemRequest.model.ItemRequest;
+import ru.practicum.shareit.itemrequest.model.ItemRequest;
 
 import javax.persistence.*;
 

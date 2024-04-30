@@ -1,4 +1,4 @@
-package ru.practicum.shareit.itemRequest.dto;
+package ru.practicum.shareit.itemrequest.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;

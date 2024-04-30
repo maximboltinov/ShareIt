@@ -1,9 +1,9 @@
-package ru.practicum.shareit.itemRequest.repository;
+package ru.practicum.shareit.itemrequest.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import ru.practicum.shareit.itemRequest.model.ItemRequest;
+import ru.practicum.shareit.itemrequest.model.ItemRequest;
 
 import java.util.List;
 import java.util.Optional;

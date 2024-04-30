@@ -1,7 +1,7 @@
-package ru.practicum.shareit.itemRequest.dto;
+package ru.practicum.shareit.itemrequest.dto;
 
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.itemRequest.model.ItemRequest;
+import ru.practicum.shareit.itemrequest.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;

@@ -1,4 +1,4 @@
-package ru.practicum.shareit.itemRequest.service;
+package ru.practicum.shareit.itemrequest.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,9 +12,9 @@ import org.springframework.data.domain.Sort;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.item.repository.JpaItemRepository;
-import ru.practicum.shareit.itemRequest.dto.ItemRequestDto;
-import ru.practicum.shareit.itemRequest.model.ItemRequest;
-import ru.practicum.shareit.itemRequest.repository.JpaItemRequestRepository;
+import ru.practicum.shareit.itemrequest.dto.ItemRequestDto;
+import ru.practicum.shareit.itemrequest.model.ItemRequest;
+import ru.practicum.shareit.itemrequest.repository.JpaItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.JpaUserRepository;
 

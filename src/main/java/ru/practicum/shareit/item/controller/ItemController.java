@@ -15,7 +15,7 @@ import java.util.List;
 @Slf4j
 @AllArgsConstructor
 public class ItemController {
-    private ItemService itemService;
+    private final ItemService itemService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
