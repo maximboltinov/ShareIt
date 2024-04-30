@@ -9,6 +9,7 @@ import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingDtoMapper;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.JpaBookingRepository;
 import ru.practicum.shareit.exception.BadRequestException;
@@ -93,7 +94,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingResponseDto> getBookingsByBookerId(Long bookerId, String state, Long from, Long size) {
+    public List<BookingResponseDto> getBookingsByBookerId(Long bookerId, BookingState state, Long from, Long size) {
         if (!userService.isPresent(bookerId)) {
             throw new ObjectNotFoundException("не найден пользователь");
         }
@@ -110,32 +111,32 @@ public class BookingServiceImpl implements BookingService {
         LocalDateTime now = LocalDateTime.now();
 
         switch (state) {
-            case "ALL":
+            case ALL:
                 bookings = bookingRepository
                         .getBookingByBooker_Id(bookerId, pageable)
                         .getContent();
                 break;
-            case "CURRENT":
+            case CURRENT:
                 bookings = bookingRepository
                         .getBookingByBooker_IdAndStartBeforeAndEndAfter(bookerId, now, now, pageable)
                         .getContent();
                 break;
-            case "PAST"://завершенные
+            case PAST://завершенные
                 bookings = bookingRepository
                         .getBookingByBooker_IdAndEndBefore(bookerId, now, pageable)
                         .getContent();
                 break;
-            case "FUTURE"://будущие
+            case FUTURE://будущие
                 bookings = bookingRepository
                         .getBookingByBooker_IdAndStartAfterAndEndAfter(bookerId, now, now, pageable)
                         .getContent();
                 break;
-            case "WAITING"://ожидающие подтверждения
+            case WAITING://ожидающие подтверждения
                 bookings = bookingRepository
                         .getBookingByBooker_IdAndStatus(bookerId, BookingStatus.WAITING, pageable)
                         .getContent();
                 break;
-            case "REJECTED"://отклоненные
+            case REJECTED://отклоненные
                 bookings = bookingRepository
                         .getBookingByBooker_IdAndStatus(bookerId, BookingStatus.REJECTED, pageable)
                         .getContent();
@@ -150,7 +151,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingResponseDto> getBookingsByOwnerId(Long ownerId, String state, Long from, Long size) {
+    public List<BookingResponseDto> getBookingsByOwnerId(Long ownerId, BookingState state, Long from, Long size) {
         if (!userService.isPresent(ownerId)) {
             throw new ObjectNotFoundException("не найден пользователь");
         }
@@ -167,32 +168,32 @@ public class BookingServiceImpl implements BookingService {
         LocalDateTime now = LocalDateTime.now();
 
         switch (state) {
-            case "ALL":
+            case ALL:
                 bookings = bookingRepository
                         .getBookingByItem_OwnerId(ownerId, pageable)
                         .getContent();
                 break;
-            case "CURRENT":
+            case CURRENT:
                 bookings = bookingRepository
                         .getBookingByItem_OwnerIdAndStartBeforeAndEndAfter(ownerId, now, now, pageable)
                         .getContent();
                 break;
-            case "PAST"://завершенные
+            case PAST://завершенные
                 bookings = bookingRepository
                         .getBookingByItem_OwnerIdAndEndBefore(ownerId, now, pageable)
                         .getContent();
                 break;
-            case "FUTURE"://будущие
+            case FUTURE://будущие
                 bookings = bookingRepository
                         .getBookingByItem_OwnerIdAndStartAfterAndEndAfter(ownerId, now, now, pageable)
                         .getContent();
                 break;
-            case "WAITING"://ожидающие подтверждения
+            case WAITING://ожидающие подтверждения
                 bookings = bookingRepository
                         .getBookingByItem_OwnerIdAndStatus(ownerId, BookingStatus.WAITING, pageable)
                         .getContent();
                 break;
-            case "REJECTED"://отклоненные
+            case REJECTED://отклоненные
                 bookings = bookingRepository
                         .getBookingByItem_OwnerIdAndStatus(ownerId, BookingStatus.REJECTED, pageable)
                         .getContent();

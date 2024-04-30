@@ -59,4 +59,16 @@ public class ErrorHandler {
         log.info("Завершен ошибкой", e);
         return Map.of(e.getArea(), e.getMessage());
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handlerIllegalArgumentException(final IllegalArgumentException e) {
+        log.info("Завершен ошибкой", e);
+
+        if (e.getMessage().contains("No enum constant") && e.getMessage().contains("BookingState")) {
+            return Map.of("error", "Unknown state: UNSUPPORTED_STATUS");
+        }
+
+        return Map.of("непредвиденная ошибка", "проверьте переданные параметры");
+    }
 }

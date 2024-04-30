@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
+import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.repository.JpaBookingRepository;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.item.dto.CreateItemRequestDto;
@@ -62,7 +63,7 @@ class BookingServiceImplIntegrationTest {
     @Test
     void getBookingsByOwnerId_withBookings() {
         List<BookingResponseDto> result =
-                bookingService.getBookingsByOwnerId(owner.getId(), "ALL", 0L, 5L);
+                bookingService.getBookingsByOwnerId(owner.getId(), BookingState.ALL, 0L, 5L);
 
         assertThat(result.size()).isEqualTo(2);
         assertThat(result.get(0).getItem().getName()).isEqualTo("item2");
@@ -72,7 +73,7 @@ class BookingServiceImplIntegrationTest {
     @Test
     void getBookingsByOwnerId_withoutBookings() {
         List<BookingResponseDto> result =
-                bookingService.getBookingsByOwnerId(tenant.getId(), "ALL", 0L, 5L);
+                bookingService.getBookingsByOwnerId(tenant.getId(), BookingState.ALL, 0L, 5L);
 
         assertThat(result.size()).isEqualTo(0);
     }
@@ -80,7 +81,7 @@ class BookingServiceImplIntegrationTest {
     @Test
     void getBookingsByOwnerId_unknownUser() {
         Assertions.assertThrows(ObjectNotFoundException.class,
-                () -> bookingService.getBookingsByOwnerId(100500L, "ALL", 0L, 5L));
+                () -> bookingService.getBookingsByOwnerId(100500L, BookingState.ALL, 0L, 5L));
     }
 
     @AfterEach

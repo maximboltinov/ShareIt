@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.JpaBookingRepository;
 import ru.practicum.shareit.exception.BadRequestException;
@@ -272,7 +273,7 @@ class BookingServiceImplTest {
                 .thenReturn(false);
 
         ObjectNotFoundException exception = assertThrows(ObjectNotFoundException.class,
-                () -> bookingService.getBookingsByBookerId(1L, "ALL", 0L, 1L));
+                () -> bookingService.getBookingsByBookerId(1L, BookingState.ALL, 0L, 1L));
 
         assertEquals("не найден пользователь", exception.getMessage());
     }
@@ -283,27 +284,16 @@ class BookingServiceImplTest {
                 .thenReturn(true);
 
         BadRequestException exception = assertThrows(BadRequestException.class,
-                () -> bookingService.getBookingsByBookerId(1L, "ALL", -1L, 1L));
+                () -> bookingService.getBookingsByBookerId(1L, BookingState.ALL, -1L, 1L));
 
         assertEquals("некорректные параметры страницы", exception.getMessage());
 
         BadRequestException exception1 = assertThrows(BadRequestException.class,
-                () -> bookingService.getBookingsByBookerId(1L, "ALL", 0L, 0L));
+                () -> bookingService.getBookingsByBookerId(1L, BookingState.ALL, 0L, 0L));
 
         assertEquals("некорректные параметры страницы", exception1.getMessage());
 
         verify(userService, times(2)).isPresent(1L);
-    }
-
-    @Test
-    void getBookingsByBookerIdWithUnknownState() {
-        when(userService.isPresent(anyLong()))
-                .thenReturn(true);
-
-        BadRequestException exception = assertThrows(BadRequestException.class,
-                () -> bookingService.getBookingsByBookerId(1L, "all", 0L, 1L));
-
-        assertEquals("Unknown state: UNSUPPORTED_STATUS", exception.getMessage());
     }
 
     @Test
@@ -316,7 +306,7 @@ class BookingServiceImplTest {
         when(bookingRepository.getBookingByBooker_Id(anyLong(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(), pageable, 0));
 
-        bookingService.getBookingsByBookerId(1L, "ALL", 0L, 1L);
+        bookingService.getBookingsByBookerId(1L, BookingState.ALL, 0L, 1L);
 
         verify(bookingRepository).getBookingByBooker_Id(1L, pageable);
     }
@@ -334,7 +324,8 @@ class BookingServiceImplTest {
                 any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(), pageable, 0));
 
-        assertDoesNotThrow(() -> bookingService.getBookingsByBookerId(1L, "CURRENT", 0L, 1L));
+        assertDoesNotThrow(() -> bookingService
+                .getBookingsByBookerId(1L, BookingState.CURRENT, 0L, 1L));
     }
 
     @Test
@@ -349,7 +340,7 @@ class BookingServiceImplTest {
                 any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(), pageable, 0));
 
-        assertDoesNotThrow(() -> bookingService.getBookingsByBookerId(1L, "PAST", 0L, 1L));
+        assertDoesNotThrow(() -> bookingService.getBookingsByBookerId(1L, BookingState.PAST, 0L, 1L));
     }
 
     @Test
@@ -365,7 +356,8 @@ class BookingServiceImplTest {
                 any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(), pageable, 0));
 
-        assertDoesNotThrow(() -> bookingService.getBookingsByBookerId(1L, "FUTURE", 0L, 1L));
+        assertDoesNotThrow(() -> bookingService
+                .getBookingsByBookerId(1L, BookingState.FUTURE, 0L, 1L));
     }
 
     @Test
@@ -380,7 +372,8 @@ class BookingServiceImplTest {
                 any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(), pageable, 0));
 
-        assertDoesNotThrow(() -> bookingService.getBookingsByBookerId(1L, "WAITING", 0L, 1L));
+        assertDoesNotThrow(() -> bookingService
+                .getBookingsByBookerId(1L, BookingState.WAITING, 0L, 1L));
     }
 
     @Test
@@ -395,7 +388,8 @@ class BookingServiceImplTest {
                 any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(), pageable, 0));
 
-        assertDoesNotThrow(() -> bookingService.getBookingsByBookerId(1L, "REJECTED", 0L, 1L));
+        assertDoesNotThrow(() -> bookingService
+                .getBookingsByBookerId(1L, BookingState.REJECTED, 0L, 1L));
     }
 
     @Test
@@ -404,7 +398,7 @@ class BookingServiceImplTest {
                 .thenReturn(false);
 
         ObjectNotFoundException exception = assertThrows(ObjectNotFoundException.class,
-                () -> bookingService.getBookingsByOwnerId(1L, "ALL", 0L, 1L));
+                () -> bookingService.getBookingsByOwnerId(1L, BookingState.ALL, 0L, 1L));
 
         assertEquals("не найден пользователь", exception.getMessage());
     }
@@ -415,27 +409,16 @@ class BookingServiceImplTest {
                 .thenReturn(true);
 
         BadRequestException exception = assertThrows(BadRequestException.class,
-                () -> bookingService.getBookingsByOwnerId(1L, "ALL", -1L, 1L));
+                () -> bookingService.getBookingsByOwnerId(1L, BookingState.ALL, -1L, 1L));
 
         assertEquals("некорректные параметры страницы", exception.getMessage());
 
         BadRequestException exception1 = assertThrows(BadRequestException.class,
-                () -> bookingService.getBookingsByOwnerId(1L, "ALL", 0L, 0L));
+                () -> bookingService.getBookingsByOwnerId(1L, BookingState.ALL, 0L, 0L));
 
         assertEquals("некорректные параметры страницы", exception1.getMessage());
 
         verify(userService, times(2)).isPresent(1L);
-    }
-
-    @Test
-    void getBookingsByOwnerIdWithUnknownState() {
-        when(userService.isPresent(anyLong()))
-                .thenReturn(true);
-
-        BadRequestException exception = assertThrows(BadRequestException.class,
-                () -> bookingService.getBookingsByOwnerId(1L, "all", 0L, 1L));
-
-        assertEquals("Unknown state: UNSUPPORTED_STATUS", exception.getMessage());
     }
 
     @Test
@@ -448,7 +431,7 @@ class BookingServiceImplTest {
         when(bookingRepository.getBookingByItem_OwnerId(anyLong(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(), pageable, 0));
 
-        bookingService.getBookingsByOwnerId(1L, "ALL", 0L, 1L);
+        bookingService.getBookingsByOwnerId(1L, BookingState.ALL, 0L, 1L);
 
         verify(bookingRepository).getBookingByItem_OwnerId(1L, pageable);
     }
@@ -466,7 +449,8 @@ class BookingServiceImplTest {
                 any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(), pageable, 0));
 
-        assertDoesNotThrow(() -> bookingService.getBookingsByOwnerId(1L, "CURRENT", 0L, 1L));
+        assertDoesNotThrow(() -> bookingService
+                .getBookingsByOwnerId(1L, BookingState.CURRENT, 0L, 1L));
     }
 
     @Test
@@ -481,7 +465,7 @@ class BookingServiceImplTest {
                 any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(), pageable, 0));
 
-        assertDoesNotThrow(() -> bookingService.getBookingsByOwnerId(1L, "PAST", 0L, 1L));
+        assertDoesNotThrow(() -> bookingService.getBookingsByOwnerId(1L, BookingState.PAST, 0L, 1L));
     }
 
     @Test
@@ -497,7 +481,8 @@ class BookingServiceImplTest {
                 any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(), pageable, 0));
 
-        assertDoesNotThrow(() -> bookingService.getBookingsByOwnerId(1L, "FUTURE", 0L, 1L));
+        assertDoesNotThrow(() -> bookingService
+                .getBookingsByOwnerId(1L, BookingState.FUTURE, 0L, 1L));
     }
 
     @Test
@@ -512,7 +497,8 @@ class BookingServiceImplTest {
                 any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(), pageable, 0));
 
-        assertDoesNotThrow(() -> bookingService.getBookingsByOwnerId(1L, "WAITING", 0L, 1L));
+        assertDoesNotThrow(() -> bookingService
+                .getBookingsByOwnerId(1L, BookingState.WAITING, 0L, 1L));
     }
 
     @Test
@@ -527,6 +513,7 @@ class BookingServiceImplTest {
                 any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(), pageable, 0));
 
-        assertDoesNotThrow(() -> bookingService.getBookingsByOwnerId(1L, "REJECTED", 0L, 1L));
+        assertDoesNotThrow(() -> bookingService
+                .getBookingsByOwnerId(1L, BookingState.REJECTED, 0L, 1L));
     }
 }

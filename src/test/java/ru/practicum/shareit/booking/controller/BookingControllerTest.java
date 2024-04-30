@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
+import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.service.BookingService;
 
@@ -181,7 +182,7 @@ class BookingControllerTest {
                         .param("size", "3"))
                 .andExpect(status().isOk());
 
-        verify(bookingService).getBookingsByBookerId(1L, "ALL", 0L, 3L);
+        verify(bookingService).getBookingsByBookerId(1L, BookingState.ALL, 0L, 3L);
     }
 
     @SneakyThrows
@@ -194,6 +195,6 @@ class BookingControllerTest {
                         .param("size", "3"))
                 .andExpect(status().isOk());
 
-        verify(bookingService).getBookingsByOwnerId(1L, "ALL", 0L, 3L);
+        verify(bookingService).getBookingsByOwnerId(1L, BookingState.ALL, 0L, 3L);
     }
 }
