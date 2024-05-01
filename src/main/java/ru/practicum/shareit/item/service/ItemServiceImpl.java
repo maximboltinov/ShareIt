@@ -1,6 +1,9 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.ShortBooking;
 import ru.practicum.shareit.booking.model.BookingStatus;
@@ -12,6 +15,8 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.JpaCommentRepository;
 import ru.practicum.shareit.item.repository.JpaItemRepository;
+import ru.practicum.shareit.itemrequest.model.ItemRequest;
+import ru.practicum.shareit.itemrequest.repository.JpaItemRequestRepository;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
@@ -21,10 +26,11 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class ItemServiceImpl implements ItemService {
-    private UserService userService;
-    private JpaBookingRepository bookingRepository;
-    private JpaItemRepository itemRepository;
-    private JpaCommentRepository jpaCommentRepository;
+    private final UserService userService;
+    private final JpaBookingRepository bookingRepository;
+    private final JpaItemRepository itemRepository;
+    private final JpaCommentRepository jpaCommentRepository;
+    private final JpaItemRequestRepository jpaItemRequestRepository;
 
     @Override
     public ItemOnlyResponseDto create(Long ownerId, CreateItemRequestDto createItemRequestDto) {
@@ -32,19 +38,29 @@ public class ItemServiceImpl implements ItemService {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
 
-        Item item = ItemDtoMapper.mapperToItem(createItemRequestDto);
-        item.setOwnerId(ownerId);
+        ItemRequest itemRequest = null;
+
+        if (createItemRequestDto.getRequestId() != null) {
+            itemRequest = jpaItemRequestRepository.findById(createItemRequestDto.getRequestId())
+                    .orElseThrow(() -> new ObjectNotFoundException("запрос на добавление вещи не найден"));
+        }
+
+        Item item = ItemDtoMapper.mapperToItem(createItemRequestDto, ownerId, itemRequest);
 
         return ItemDtoMapper.mapperToItemOutDto(itemRepository.save(item));
     }
 
     @Override
-    public ItemOnlyResponseDto update(Long ownerId, Long itemId, UpdateItemRequestDto updateItem/*Map<String, String> itemParts*/) {
+    public ItemOnlyResponseDto update(Long ownerId, Long itemId, UpdateItemRequestDto updateItem) {
         if (userService.getUserById(ownerId) == null) {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
 
-        Item item = getItemById(itemId).toBuilder().build();
+        if (updateItem == null) {
+            throw new BadRequestException("ItemService update", "updateItem не может быть null");
+        }
+
+        Item item = getItemById(itemId);
 
         if (!Objects.equals(item.getOwnerId(), ownerId)) {
             throw new ObjectNotFoundException("Несоответствие id владельца");
@@ -65,15 +81,24 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item getItemById(Long itemId) {
-        Optional<Item> item = itemRepository.findById(itemId);
-        if (item.isEmpty()) {
-            throw new ObjectNotFoundException(String.format("Вещь с id %s не найдена", itemId));
+        if (itemId == null) {
+            throw new BadRequestException("ItemService getItemById", "itemId не может быть null");
         }
-        return item.get();
+
+        return itemRepository.findById(itemId)
+                .orElseThrow(() -> new ObjectNotFoundException(String.format("Вещь с id %s не найдена", itemId)));
     }
 
     @Override
     public ItemBookingCommentsResponseDto getByItemId(Long itemId, Long userId) {
+        if (userId == null) {
+            throw new BadRequestException("ItemService getByItemId", "userId не может быть null");
+        }
+
+        if (!userService.isPresent(userId)) {
+            throw new ObjectNotFoundException("пользователь не найден");
+        }
+
         Item item = getItemById(itemId);
         ItemBookingCommentsResponseDto itemBookingCommentsResponseDto = ItemDtoMapper.mapperToItemBookerOutDto(item);
 
@@ -98,24 +123,27 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemBookingCommentsResponseDto> getByUserId(Long ownerId) {
+    public List<ItemBookingCommentsResponseDto> getByUserId(Long ownerId, Long from, Long size) {
         if (userService.getUserById(ownerId) == null) {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
 
-        Optional<List<Item>> optionalItemList = itemRepository.findByOwnerIdOrderById(ownerId);
-
-        if (optionalItemList.isEmpty()) {
-            return new ArrayList<>();
+        if (from < 0 || size <= 0) {
+            throw new BadRequestException("ItemService getByUserId", "некорректные параметры страницы");
         }
 
-        List<Item> itemList = optionalItemList.get();
+        Pageable pageable = PageRequest.of(Math.toIntExact(from) / Math.toIntExact(size),
+                Math.toIntExact(size),
+                Sort.by(Sort.Direction.ASC, "id"));
+
+        List<Item> items = itemRepository.findItemByOwnerId(ownerId, pageable).getContent();
+
         List<ShortBooking> shortBookingList =
                 bookingRepository.getShortBookingsByItemsOwnerId(ownerId, BookingStatus.APPROVED);
 
         List<ItemBookingCommentsResponseDto> itemBookingCommentsResponseDtoList = new ArrayList<>();
 
-        for (Item item : itemList) {
+        for (Item item : items) {
             List<ShortBooking> shortBookingListForItem = shortBookingList.stream()
                     .filter(entity -> Objects.equals(entity.getItemId(), item.getId()))
                     .sorted(Comparator.comparing(ShortBooking::getStart))
@@ -131,12 +159,20 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemOnlyResponseDto> searchByText(String textForSearch) {
+    public List<ItemOnlyResponseDto> searchByText(String textForSearch, Long from, Long size) {
         if (textForSearch.isBlank()) {
             return new ArrayList<>();
         }
 
-        return itemRepository.some(textForSearch).stream()
+        if (from < 0 || size <= 0) {
+            throw new BadRequestException("ItemService searchByText", "некорректные параметры страницы");
+        }
+
+        Pageable pageable = PageRequest.of(Math.toIntExact(from) / Math.toIntExact(size),
+                Math.toIntExact(size),
+                Sort.by(Sort.Direction.ASC, "id"));
+
+        return itemRepository.some(textForSearch, pageable).stream()
                 .map(ItemDtoMapper::mapperToItemOutDto)
                 .collect(Collectors.toList());
     }
@@ -168,9 +204,10 @@ public class ItemServiceImpl implements ItemService {
         return CommentDtoMapper.commentCommentOutDtoMapper(jpaCommentRepository.save(comment));
     }
 
-    private ItemBookingCommentsResponseDto addShortBookingsToItemBookerOutDto(ItemBookingCommentsResponseDto itemBookingCommentsResponseDto,
-                                                                              List<ShortBooking> shortBookingList,
-                                                                              LocalDateTime datePoint) {
+    private ItemBookingCommentsResponseDto addShortBookingsToItemBookerOutDto(
+            ItemBookingCommentsResponseDto itemBookingCommentsResponseDto,
+            List<ShortBooking> shortBookingList,
+            LocalDateTime datePoint) {
 
         Optional<ShortBooking> lastBooking = shortBookingList.stream()
                 .filter(booking -> booking.getStart().isBefore(datePoint))

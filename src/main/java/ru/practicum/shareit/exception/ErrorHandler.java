@@ -31,7 +31,9 @@ public class ErrorHandler {
             case "itemDto":
                 return Map.of("ошибка валидации данных вещи", "указаны не все параметры");
             case "text":
-                return Map.of("ошибка валидации данных вещи", "сообщение не можен быть пустым");
+                return Map.of("ошибка валидации сообщения", "сообщение не можен быть пустым");
+            case "itemRequestDto":
+                return Map.of("ошибка валидации запроса на добавление вещи", "указаны не все параметры");
             default:
                 return Map.of("непредвиденная ошибка", "проверьте переданные параметры");
         }
@@ -56,5 +58,17 @@ public class ErrorHandler {
     public Map<String, String> handlerBadRequest(final BadRequestException e) {
         log.info("Завершен ошибкой", e);
         return Map.of(e.getArea(), e.getMessage());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handlerIllegalArgumentException(final IllegalArgumentException e) {
+        log.info("Завершен ошибкой", e);
+
+        if (e.getMessage().contains("No enum constant") && e.getMessage().contains("BookingState")) {
+            return Map.of("error", "Unknown state: UNSUPPORTED_STATUS");
+        }
+
+        return Map.of("непредвиденная ошибка", "проверьте переданные параметры");
     }
 }

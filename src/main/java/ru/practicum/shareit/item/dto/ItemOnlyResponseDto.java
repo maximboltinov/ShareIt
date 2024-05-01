@@ -10,4 +10,5 @@ public class ItemOnlyResponseDto {
     private String name;
     private String description;
     private Boolean available;
+    private Long requestId;
 }

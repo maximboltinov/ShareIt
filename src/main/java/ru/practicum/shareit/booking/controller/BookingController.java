@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
+import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.service.BookingService;
 
 import javax.validation.Valid;
@@ -28,8 +29,8 @@ public class BookingController {
 
     @PatchMapping("/{bookingId}")
     public BookingResponseDto update(@RequestHeader("X-Sharer-User-Id") Long itemOwnerId,
-                          @PathVariable Long bookingId,
-                          @RequestParam Boolean approved) {
+                                     @PathVariable Long bookingId,
+                                     @RequestParam Boolean approved) {
         log.info("Запрос PATCH /bookings/{}?approved={}", bookingId, approved);
         BookingResponseDto booking = bookingService.updateApprove(itemOwnerId, bookingId, approved);
         log.info("отправлен ответ PATCH /bookings/{}?approved={} {}", bookingId, approved, booking);
@@ -47,18 +48,22 @@ public class BookingController {
 
     @GetMapping
     public List<BookingResponseDto> getBookingsByBookerId(@RequestHeader("X-Sharer-User-Id") Long bookerId,
-                                               @RequestParam(defaultValue = "ALL") String state) {
-        log.info("Запрос GET /bookings?state={}", state);
-        List<BookingResponseDto> bookingList = bookingService.getBookingsByBookerId(bookerId, state);
-        log.info("Запрос GET /bookings?state={} {}", state, bookingList);
+                                                          @RequestParam(defaultValue = "ALL") BookingState state,
+                                                          @RequestParam(defaultValue = "0") Long from,
+                                                          @RequestParam(defaultValue = "20") Long size) {
+        log.info("Запрос GET /bookings?state={}&from={}&size={}", state, from, size);
+        List<BookingResponseDto> bookingList = bookingService.getBookingsByBookerId(bookerId, state, from, size);
+        log.info("Отправлен ответ GET /bookings?state={}&from={}&size={} {}", state, from, size, bookingList);
         return bookingList;
     }
 
     @GetMapping("/owner")
     public List<BookingResponseDto> getBookingsByOwnerId(@RequestHeader("X-Sharer-User-Id") Long ownerId,
-                                              @RequestParam(defaultValue = "ALL") String state) {
+                                                         @RequestParam(defaultValue = "ALL") BookingState state,
+                                                         @RequestParam(defaultValue = "0") Long from,
+                                                         @RequestParam(defaultValue = "20") Long size) {
         log.info("Запрос GET /bookings/owner?state={}", state);
-        List<BookingResponseDto> bookingList = bookingService.getBookingsByOwnerId(ownerId, state);
+        List<BookingResponseDto> bookingList = bookingService.getBookingsByOwnerId(ownerId, state, from, size);
         log.info("Запрос GET /bookings/owner?state={} {}", state, bookingList);
         return bookingList;
     }

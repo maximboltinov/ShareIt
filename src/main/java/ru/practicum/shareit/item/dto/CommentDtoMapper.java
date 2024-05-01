@@ -13,6 +13,7 @@ public final class CommentDtoMapper {
                 .authorName(comment.getAuthor().getName())
                 .text(comment.getText())
                 .created(comment.getCreated())
+                .itemId(comment.getItem().getId())
                 .build();
     }
 }

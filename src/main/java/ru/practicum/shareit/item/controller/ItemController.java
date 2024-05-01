@@ -15,7 +15,7 @@ import java.util.List;
 @Slf4j
 @AllArgsConstructor
 public class ItemController {
-    private ItemService itemService;
+    private final ItemService itemService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -30,7 +30,7 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     @ResponseStatus(HttpStatus.OK)
     public ItemOnlyResponseDto update(@RequestHeader("X-Sharer-User-Id") Long ownerId, @PathVariable Long itemId,
-                                      @RequestBody UpdateItemRequestDto updateItem) {
+                                      @RequestBody @Validated UpdateItemRequestDto updateItem) {
         log.info("Запрос PATCH /items/{} ownerId = {} itemParts = {}", itemId, ownerId, updateItem);
         ItemOnlyResponseDto responseItemOut = itemService.update(ownerId, itemId, updateItem);
         log.info("Отправлен ответ PATCH /items/{} {}", itemId, responseItemOut);
@@ -49,18 +49,22 @@ public class ItemController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<ItemBookingCommentsResponseDto> getByUserId(@RequestHeader("X-Sharer-User-Id") Long ownerId) {
+    public List<ItemBookingCommentsResponseDto> getByUserId(@RequestHeader("X-Sharer-User-Id") Long ownerId,
+                                                            @RequestParam(defaultValue = "0") Long from,
+                                                            @RequestParam(defaultValue = "20") Long size) {
         log.info("Запрос GET /items userId {}", ownerId);
-        List<ItemBookingCommentsResponseDto> itemOutList = itemService.getByUserId(ownerId);
+        List<ItemBookingCommentsResponseDto> itemOutList = itemService.getByUserId(ownerId, from, size);
         log.info("Отправлен ответ GET /items userId {} {}", ownerId, itemOutList);
         return itemOutList;
     }
 
     @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
-    public List<ItemOnlyResponseDto> searchByText(@RequestParam(name = "text", required = false) String textForSearch) {
+    public List<ItemOnlyResponseDto> searchByText(@RequestParam(name = "text", required = false) String textForSearch,
+                                                  @RequestParam(defaultValue = "0") Long from,
+                                                  @RequestParam(defaultValue = "20") Long size) {
         log.info("Запрос GET /search?text={}", textForSearch);
-        List<ItemOnlyResponseDto> itemOutList = itemService.searchByText(textForSearch);
+        List<ItemOnlyResponseDto> itemOutList = itemService.searchByText(textForSearch, from, size);
         log.info("Отправлен ответ GET /search?text={} {}", textForSearch, itemOutList);
         return itemOutList;
     }
