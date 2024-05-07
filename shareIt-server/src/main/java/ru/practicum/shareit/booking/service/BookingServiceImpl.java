@@ -45,12 +45,6 @@ public class BookingServiceImpl implements BookingService {
         if (!booking.getItem().getAvailable()) {
             throw new BadRequestException("booking create", "item недоступен");
         }
-        if (booking.getEnd().isBefore(LocalDateTime.now()) || booking.getStart().isBefore(LocalDateTime.now())) {
-            throw new BadRequestException("booking create", "дата окончания или начала в прошлом");
-        }
-        if (booking.getEnd().isBefore(booking.getStart()) || booking.getEnd().isEqual(booking.getStart())) {
-            throw new BadRequestException("booking create", "дата окончания раньше начала или равны");
-        }
 
         return BookingDtoMapper.mapperToBookingResponseDto(bookingRepository.save(booking));
     }
@@ -97,10 +91,6 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingResponseDto> getBookingsByBookerId(Long bookerId, BookingState state, Long from, Long size) {
         if (!userService.isPresent(bookerId)) {
             throw new ObjectNotFoundException("не найден пользователь");
-        }
-
-        if (from < 0 || size <= 0) {
-            throw new BadRequestException("getBookingsByBookerId", "некорректные параметры страницы");
         }
 
         Pageable pageable = PageRequest.of(Math.toIntExact(from) / Math.toIntExact(size),
@@ -154,10 +144,6 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingResponseDto> getBookingsByOwnerId(Long ownerId, BookingState state, Long from, Long size) {
         if (!userService.isPresent(ownerId)) {
             throw new ObjectNotFoundException("не найден пользователь");
-        }
-
-        if (from < 0 || size <= 0) {
-            throw new BadRequestException("getBookingsByBookerId", "некорректные параметры страницы");
         }
 
         Pageable pageable = PageRequest.of(Math.toIntExact(from) / Math.toIntExact(size),

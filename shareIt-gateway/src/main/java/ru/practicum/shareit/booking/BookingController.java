@@ -23,9 +23,15 @@ public class BookingController {
 
     @PostMapping
     public ResponseEntity<Object> create(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
-                                         @RequestBody @Valid BookItemRequestDto requestDto) {
-        log.info("Creating booking {}, userId={}", requestDto, userId);
-        return bookingClient.bookItem(userId, requestDto);
+                                         @RequestBody @Valid BookItemRequestDto bookItemRequestDto) {
+        log.info("Creating booking {}, userId={}", bookItemRequestDto, userId);
+
+        if (bookItemRequestDto.getEnd().isBefore(bookItemRequestDto.getStart())
+                || bookItemRequestDto.getEnd().isEqual(bookItemRequestDto.getStart())) {
+            throw new IllegalArgumentException("дата окончания раньше начала или равны");
+        }
+
+        return bookingClient.bookItem(userId, bookItemRequestDto);
     }
 
     @PatchMapping("/{bookingId}")

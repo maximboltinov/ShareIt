@@ -23,10 +23,8 @@ public class ErrorHandler {
                         "указаны не все параметры или некорректный email");
             case "createItemRequestDto":
                 return Map.of("ошибка валидации данных вещи", "указаны не все параметры");
-//            case "itemDto":
-//                return Map.of("ошибка валидации данных вещи", "указаны не все параметры");
-//            case "text":
-//                return Map.of("ошибка валидации сообщения", "сообщение не можен быть пустым");
+            case "bookItemRequestDto":
+                return Map.of("ошибка валидации данных booking", "указаны не все параметры");
             default:
                 return Map.of("непредвиденная ошибка", "проверьте переданные параметры");
         }

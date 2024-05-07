@@ -82,50 +82,6 @@ class BookingControllerTest {
 
     @SneakyThrows
     @Test
-    void createWithViolationOfTheConditionsForTheValueInBody() {
-        BookingRequestDto bookingRequestDto = new BookingRequestDto(null,
-                LocalDateTime.now().plusDays(1),
-                LocalDateTime.now().plusDays(2));
-
-        mockMvc.perform(post("/bookings")
-                        .header("X-Sharer-User-Id", 1L)
-                        .content(objectMapper.writeValueAsString(bookingRequestDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
-        verify(bookingService, never()).create(anyLong(), any(BookingRequestDto.class));
-
-        bookingRequestDto.setItemId(1L);
-        bookingRequestDto.setStart(null);
-
-        mockMvc.perform(post("/bookings")
-                        .header("X-Sharer-User-Id", 1L)
-                        .content(objectMapper.writeValueAsString(bookingRequestDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
-        verify(bookingService, never()).create(anyLong(), any(BookingRequestDto.class));
-
-        bookingRequestDto.setStart(LocalDateTime.now().plusDays(1));
-        bookingRequestDto.setEnd(null);
-
-        mockMvc.perform(post("/bookings")
-                        .header("X-Sharer-User-Id", 1L)
-                        .content(objectMapper.writeValueAsString(bookingRequestDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
-        verify(bookingService, never()).create(anyLong(), any(BookingRequestDto.class));
-    }
-
-    @SneakyThrows
-    @Test
     void createWithoutXSharerUserId() {
         BookingRequestDto bookingRequestDto = new BookingRequestDto(null,
                 LocalDateTime.now().plusDays(1),

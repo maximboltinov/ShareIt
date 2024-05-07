@@ -29,7 +29,8 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class BookingServiceImplTest {
@@ -84,33 +85,6 @@ class BookingServiceImplTest {
                 () -> bookingService.create(3L, bookingRequestDto));
 
         assertEquals("item недоступен", exception.getMessage());
-    }
-
-    @Test
-    void createWithBadDate() {
-        User user = new User(3L, "user@mail.com", "user");
-        when(userService.getUserById(anyLong()))
-                .thenReturn(user);
-        Item item =
-                new Item(2L, "item", "item description", true, 1L, null);
-        when(itemService.getItemById(anyLong()))
-                .thenReturn(item);
-
-        BookingRequestDto bookingRequestDto =
-                new BookingRequestDto(2L, LocalDateTime.now().minusDays(2), LocalDateTime.now().plusDays(3));
-
-        BadRequestException exception = assertThrows(BadRequestException.class,
-                () -> bookingService.create(3L, bookingRequestDto));
-
-        assertEquals("дата окончания или начала в прошлом", exception.getMessage());
-
-        bookingRequestDto.setStart(LocalDateTime.now().plusDays(3));
-        bookingRequestDto.setEnd(bookingRequestDto.getStart());
-
-        BadRequestException exception1 = assertThrows(BadRequestException.class,
-                () -> bookingService.create(3L, bookingRequestDto));
-
-        assertEquals("дата окончания раньше начала или равны", exception1.getMessage());
     }
 
     @Test
@@ -279,24 +253,6 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void getBookingsByBookerIdWithIncorrectPageParameters() {
-        when(userService.isPresent(anyLong()))
-                .thenReturn(true);
-
-        BadRequestException exception = assertThrows(BadRequestException.class,
-                () -> bookingService.getBookingsByBookerId(1L, BookingState.ALL, -1L, 1L));
-
-        assertEquals("некорректные параметры страницы", exception.getMessage());
-
-        BadRequestException exception1 = assertThrows(BadRequestException.class,
-                () -> bookingService.getBookingsByBookerId(1L, BookingState.ALL, 0L, 0L));
-
-        assertEquals("некорректные параметры страницы", exception1.getMessage());
-
-        verify(userService, times(2)).isPresent(1L);
-    }
-
-    @Test
     void getBookingsByBookerIdCorrectWithStateAll() {
         when(userService.isPresent(anyLong()))
                 .thenReturn(true);
@@ -401,24 +357,6 @@ class BookingServiceImplTest {
                 () -> bookingService.getBookingsByOwnerId(1L, BookingState.ALL, 0L, 1L));
 
         assertEquals("не найден пользователь", exception.getMessage());
-    }
-
-    @Test
-    void getBookingsByOwnerIdWithIncorrectPageParameters() {
-        when(userService.isPresent(anyLong()))
-                .thenReturn(true);
-
-        BadRequestException exception = assertThrows(BadRequestException.class,
-                () -> bookingService.getBookingsByOwnerId(1L, BookingState.ALL, -1L, 1L));
-
-        assertEquals("некорректные параметры страницы", exception.getMessage());
-
-        BadRequestException exception1 = assertThrows(BadRequestException.class,
-                () -> bookingService.getBookingsByOwnerId(1L, BookingState.ALL, 0L, 0L));
-
-        assertEquals("некорректные параметры страницы", exception1.getMessage());
-
-        verify(userService, times(2)).isPresent(1L);
     }
 
     @Test
