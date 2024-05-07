@@ -9,7 +9,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.item.repository.JpaItemRepository;
 import ru.practicum.shareit.itemrequest.dto.ItemRequestDto;
@@ -86,17 +85,6 @@ class ItemRequestServiceImplTest {
                 .thenReturn(Optional.of(List.of()));
 
         assertDoesNotThrow(() -> itemRequestService.getUserRequests(1L));
-    }
-
-    @Test
-    void getAllRequestsAnotherUsersWithIncorrectPageParameters() {
-        BadRequestException exception1 = assertThrows(BadRequestException.class,
-                () -> itemRequestService.getAllRequestsAnotherUsers(1L, -1L, 1L));
-        assertEquals("некорректные параметры страницы", exception1.getMessage());
-
-        BadRequestException exception2 = assertThrows(BadRequestException.class,
-                () -> itemRequestService.getAllRequestsAnotherUsers(1L, 0L, 0L));
-        assertEquals("некорректные параметры страницы", exception2.getMessage());
     }
 
     @Test

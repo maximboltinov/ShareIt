@@ -2,7 +2,6 @@ package ru.practicum.shareit.itemrequest.controller;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.itemrequest.dto.CreateItemRequestResponseDto;
 import ru.practicum.shareit.itemrequest.dto.GetItemRequestResponseDto;
@@ -20,7 +19,7 @@ public class ItemRequestController {
 
     @PostMapping
     public CreateItemRequestResponseDto create(@RequestHeader("X-Sharer-User-Id") Long authorId,
-                                               @RequestBody @Validated ItemRequestDto itemRequestDto) {
+                                               @RequestBody ItemRequestDto itemRequestDto) {
         log.info("Запрос POST /requests authorId = {} itemRequestDto = {}", authorId, itemRequestDto);
         CreateItemRequestResponseDto itemRequestResponseDto = itemRequestService.create(authorId, itemRequestDto);
         log.info("Отправлен ответ POST /requests {}", itemRequestResponseDto);

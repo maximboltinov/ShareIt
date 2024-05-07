@@ -5,7 +5,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.JpaItemRepository;
@@ -58,10 +57,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public List<GetItemRequestResponseDto> getAllRequestsAnotherUsers(Long userId, Long from, Long size) {
-        if (from < 0 || size <= 0) {
-            throw new BadRequestException("getAllRequestsAnotherUsers", "некорректные параметры страницы");
-        }
-
         if (!jpaUserRepository.existsById(userId)) {
             throw new ObjectNotFoundException("не найден пользователь");
         }

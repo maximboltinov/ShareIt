@@ -13,7 +13,6 @@ import ru.practicum.shareit.itemrequest.service.ItemRequestService;
 
 import java.nio.charset.StandardCharsets;
 
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -45,35 +44,6 @@ class ItemRequestControllerTest {
                 .andExpect(status().isOk());
 
         verify(itemRequestService).create(1L, itemRequestDto);
-    }
-
-    @SneakyThrows
-    @Test
-    void createWithIncorrectValueInContent() {
-        ItemRequestDto itemRequestDto = new ItemRequestDto();
-        itemRequestDto.setDescription("");
-
-        mockMvc.perform(post("/requests")
-                        .header("X-Sharer-User-Id", "1")
-                        .content(objectMapper.writeValueAsString(itemRequestDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
-        verify(itemRequestService, never()).create(1L, itemRequestDto);
-
-        itemRequestDto.setDescription("s".repeat(513));
-
-        mockMvc.perform(post("/requests")
-                        .header("X-Sharer-User-Id", "1")
-                        .content(objectMapper.writeValueAsString(itemRequestDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
-        verify(itemRequestService, never()).create(1L, itemRequestDto);
     }
 
     @SneakyThrows
