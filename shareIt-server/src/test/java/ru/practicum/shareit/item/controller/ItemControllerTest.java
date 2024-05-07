@@ -15,7 +15,6 @@ import ru.practicum.shareit.item.service.ItemService;
 
 import java.nio.charset.StandardCharsets;
 
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -50,49 +49,6 @@ class ItemControllerTest {
                 .andExpect(status().isCreated());
 
         verify(itemService).create(1L, createItemRequestDto);
-    }
-
-    @SneakyThrows
-    @Test
-    void createWithIncorrectValuesInContent() {
-        CreateItemRequestDto createItemRequestDto = CreateItemRequestDto.builder()
-                .name(null)
-                .description("description")
-                .available(true)
-                .requestId(null)
-                .build();
-
-        mockMvc.perform(post("/items")
-                        .header("X-Sharer-User-Id", "1")
-                        .content(objectMapper.writeValueAsString(createItemRequestDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
-        verify(itemService, never()).create(1L, createItemRequestDto);
-
-        createItemRequestDto.setName("name");
-        createItemRequestDto.setDescription(null);
-
-        mockMvc.perform(post("/items")
-                        .header("X-Sharer-User-Id", "1")
-                        .content(objectMapper.writeValueAsString(createItemRequestDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
-        createItemRequestDto.setDescription("description");
-        createItemRequestDto.setAvailable(null);
-
-        mockMvc.perform(post("/items")
-                        .header("X-Sharer-User-Id", "1")
-                        .content(objectMapper.writeValueAsString(createItemRequestDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
     }
 
     @SneakyThrows
@@ -166,27 +122,6 @@ class ItemControllerTest {
 
     @SneakyThrows
     @Test
-    void updateWithIncorrectValuesInContent() {
-        UpdateItemRequestDto updateItemRequestDto = new UpdateItemRequestDto(-1L,
-                "newName",
-                "newDescription",
-                false);
-
-        String itemId = "1";
-
-        mockMvc.perform(patch("/items/{itemId}", itemId)
-                        .header("X-Sharer-User-Id", "1")
-                        .content(objectMapper.writeValueAsString(updateItemRequestDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
-        verify(itemService, never()).update(1L, 1L, updateItemRequestDto);
-    }
-
-    @SneakyThrows
-    @Test
     void getByItemIdCorrect() {
         String itemId = "1";
 
@@ -238,24 +173,5 @@ class ItemControllerTest {
                 .andExpect(status().isOk());
 
         verify(itemService).addComment(1L, 1L, commentRequestDto);
-    }
-
-    @SneakyThrows
-    @Test
-    void addCommentWithIncorrectValuesInContent() {
-        String itemId = "1";
-
-        CommentRequestDto commentRequestDto = new CommentRequestDto();
-        commentRequestDto.setText("");
-
-        mockMvc.perform(post("/items/{itemId}/comment", itemId)
-                        .header("X-Sharer-User-Id", "1")
-                        .content(objectMapper.writeValueAsBytes(commentRequestDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
-        verify(itemService, never()).addComment(1L, 1L, commentRequestDto);
     }
 }

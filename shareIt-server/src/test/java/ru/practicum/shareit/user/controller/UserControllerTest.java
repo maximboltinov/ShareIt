@@ -14,7 +14,6 @@ import ru.practicum.shareit.user.service.UserService;
 
 import java.nio.charset.StandardCharsets;
 
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;

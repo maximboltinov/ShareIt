@@ -3,7 +3,6 @@ package ru.practicum.shareit.item.controller;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.service.ItemService;
@@ -20,7 +19,7 @@ public class ItemController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ItemOnlyResponseDto create(@RequestHeader("X-Sharer-User-Id") Long ownerId,
-                                      @RequestBody @Validated CreateItemRequestDto createItemRequestDto) {
+                                      @RequestBody CreateItemRequestDto createItemRequestDto) {
         log.info("Запрос POST /items ownerId = {} itemDto = {}", ownerId, createItemRequestDto);
         ItemOnlyResponseDto responseItem = itemService.create(ownerId, createItemRequestDto);
         log.info("Отправлен ответ POST /items {}", responseItem);
@@ -30,7 +29,7 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     @ResponseStatus(HttpStatus.OK)
     public ItemOnlyResponseDto update(@RequestHeader("X-Sharer-User-Id") Long ownerId, @PathVariable Long itemId,
-                                      @RequestBody @Validated UpdateItemRequestDto updateItem) {
+                                      @RequestBody UpdateItemRequestDto updateItem) {
         log.info("Запрос PATCH /items/{} ownerId = {} itemParts = {}", itemId, ownerId, updateItem);
         ItemOnlyResponseDto responseItemOut = itemService.update(ownerId, itemId, updateItem);
         log.info("Отправлен ответ PATCH /items/{} {}", itemId, responseItemOut);
@@ -60,7 +59,7 @@ public class ItemController {
 
     @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
-    public List<ItemOnlyResponseDto> searchByText(@RequestParam(name = "text", required = false) String textForSearch,
+    public List<ItemOnlyResponseDto> searchByText(@RequestParam(name = "text") String textForSearch,
                                                   @RequestParam(defaultValue = "0") Long from,
                                                   @RequestParam(defaultValue = "20") Long size) {
         log.info("Запрос GET /search?text={}", textForSearch);
@@ -73,7 +72,7 @@ public class ItemController {
     @ResponseStatus(HttpStatus.OK)
     public CommentResponseDto addComment(@RequestHeader("X-Sharer-User-Id") Long authorId,
                                          @PathVariable Long itemId,
-                                         @RequestBody @Validated CommentRequestDto text) {
+                                         @RequestBody CommentRequestDto text) {
         log.info("Запрос POST /items/{}/comment", itemId);
         CommentResponseDto comment = itemService.addComment(authorId, itemId, text);
         log.info("Отправлен ответ POST /items/{}/comment {}", itemId, comment);

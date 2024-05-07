@@ -178,18 +178,6 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void updateItemIdNull() {
-        when(userService.getUserById(anyLong()))
-                .thenReturn(new User());
-
-        BadRequestException exception = assertThrows(BadRequestException.class,
-                () -> itemService.update(1L, null,
-                        new UpdateItemRequestDto(1L, "jjj", "fff", true)));
-
-        assertEquals("itemId не может быть null", exception.getMessage());
-    }
-
-    @Test
     void updateWithNotItemById() {
         when(userService.getUserById(anyLong()))
                 .thenReturn(new User());
@@ -199,17 +187,6 @@ class ItemServiceImplTest {
                         new UpdateItemRequestDto(1L, "jjj", "fff", true)));
 
         assertEquals("Вещь с id 1 не найдена", exception.getMessage());
-    }
-
-    @Test
-    void updateWithUpdateItemNull() {
-        when(userService.getUserById(anyLong()))
-                .thenReturn(new User());
-
-        BadRequestException exception = assertThrows(BadRequestException.class,
-                () -> itemService.update(1L, 1L, null));
-
-        assertEquals("updateItem не может быть null", exception.getMessage());
     }
 
     @Test
@@ -267,14 +244,6 @@ class ItemServiceImplTest {
         assertEquals("UpdateDescription", itemAnswer.getDescription());
         assertEquals(false, itemAnswer.getAvailable());
         assertNull(itemAnswer.getRequestId());
-    }
-
-    @Test
-    void getByItemIdWithUserIdNull() {
-        BadRequestException exception = assertThrows(BadRequestException.class,
-                () -> itemService.getByItemId(1L, null));
-
-        assertEquals("userId не может быть null", exception.getMessage());
     }
 
     @Test
@@ -376,24 +345,6 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void getByUserIdWithIncorrectPageParameters() {
-        when(userService.getUserById(anyLong()))
-                .thenReturn(new User());
-
-        BadRequestException exception1 = assertThrows(BadRequestException.class,
-                () -> itemService.getByUserId(1L, -1L, 2L));
-
-        assertEquals("некорректные параметры страницы", exception1.getMessage());
-
-        BadRequestException exception2 = assertThrows(BadRequestException.class,
-                () -> itemService.getByUserId(1L, 0L, 0L));
-
-        assertEquals("некорректные параметры страницы", exception2.getMessage());
-
-        verify(userService, times(2)).getUserById(1L);
-    }
-
-    @Test
     void getByUserIdCorrect() {
         when(userService.getUserById(anyLong()))
                 .thenReturn(new User());
@@ -439,19 +390,6 @@ class ItemServiceImplTest {
     @Test
     void searchByTextWithEmptyTextForSearch() {
         assertEquals(List.of(), itemService.searchByText("", 0L, 1L));
-    }
-
-    @Test
-    void searchByTextWithIncorrectPageParameters() {
-        BadRequestException exception1 = assertThrows(BadRequestException.class,
-                () -> itemService.searchByText("sss", -1L, 1L));
-
-        assertEquals("некорректные параметры страницы", exception1.getMessage());
-
-        BadRequestException exception2 = assertThrows(BadRequestException.class,
-                () -> itemService.searchByText("sss", 0L, 0L));
-
-        assertEquals("некорректные параметры страницы", exception2.getMessage());
     }
 
     @Test

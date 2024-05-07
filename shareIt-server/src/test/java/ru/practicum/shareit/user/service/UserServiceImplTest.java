@@ -6,7 +6,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.exception.AvailabilityException;
-import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.EmailValidException;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.user.dto.UpdateUserRequestDto;

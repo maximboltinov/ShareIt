@@ -56,10 +56,6 @@ public class ItemServiceImpl implements ItemService {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
 
-        if (updateItem == null) {
-            throw new BadRequestException("ItemService update", "updateItem не может быть null");
-        }
-
         Item item = getItemById(itemId);
 
         if (!Objects.equals(item.getOwnerId(), ownerId)) {
@@ -81,20 +77,12 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item getItemById(Long itemId) {
-        if (itemId == null) {
-            throw new BadRequestException("ItemService getItemById", "itemId не может быть null");
-        }
-
         return itemRepository.findById(itemId)
                 .orElseThrow(() -> new ObjectNotFoundException(String.format("Вещь с id %s не найдена", itemId)));
     }
 
     @Override
     public ItemBookingCommentsResponseDto getByItemId(Long itemId, Long userId) {
-        if (userId == null) {
-            throw new BadRequestException("ItemService getByItemId", "userId не может быть null");
-        }
-
         if (!userService.isPresent(userId)) {
             throw new ObjectNotFoundException("пользователь не найден");
         }
@@ -128,10 +116,6 @@ public class ItemServiceImpl implements ItemService {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
 
-        if (from < 0 || size <= 0) {
-            throw new BadRequestException("ItemService getByUserId", "некорректные параметры страницы");
-        }
-
         Pageable pageable = PageRequest.of(Math.toIntExact(from) / Math.toIntExact(size),
                 Math.toIntExact(size),
                 Sort.by(Sort.Direction.ASC, "id"));
@@ -162,10 +146,6 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemOnlyResponseDto> searchByText(String textForSearch, Long from, Long size) {
         if (textForSearch.isBlank()) {
             return new ArrayList<>();
-        }
-
-        if (from < 0 || size <= 0) {
-            throw new BadRequestException("ItemService searchByText", "некорректные параметры страницы");
         }
 
         Pageable pageable = PageRequest.of(Math.toIntExact(from) / Math.toIntExact(size),

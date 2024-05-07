@@ -67,7 +67,7 @@ public class ItemController {
 
     @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Object> searchByText(@RequestParam(name = "text", required = false) String textForSearch,
+    public ResponseEntity<Object> searchByText(@RequestParam(name = "text") String textForSearch,
                                                @PositiveOrZero @RequestParam(defaultValue = "0") Long from,
                                                @Positive @RequestParam(defaultValue = "20") Long size) {
         log.info("gateway Запрос GET /search?text={}", textForSearch);

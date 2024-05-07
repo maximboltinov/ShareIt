@@ -7,13 +7,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
+import ru.practicum.shareit.itemrequest.dto.GetItemRequestResponseDto;
 import ru.practicum.shareit.itemrequest.dto.ItemRequestDto;
 import ru.practicum.shareit.itemrequest.repository.JpaItemRequestRepository;
 import ru.practicum.shareit.user.dto.UserRequestDto;
 import ru.practicum.shareit.user.dto.UserResponseDto;
 import ru.practicum.shareit.user.repository.JpaUserRepository;
 import ru.practicum.shareit.user.service.UserService;
-import ru.practicum.shareit.itemrequest.dto.GetItemRequestResponseDto;
 
 import java.util.List;
 
