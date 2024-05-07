@@ -36,7 +36,13 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handlerConstraintViolationException(final ConstraintViolationException e) {
         log.info("Завершен ошибкой", e);
-        System.out.println("e = " + e.getMessage());
         return Map.of("ошибка валидации", e.getMessage());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handlerIllegalArgumentException(final IllegalArgumentException e) {
+        log.info("Завершен ошибкой", e);
+        return Map.of("error", e.getMessage());
     }
 }
