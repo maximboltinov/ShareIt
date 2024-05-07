@@ -87,25 +87,6 @@ class UserServiceImplTest {
     }
 
     @Test
-    void getUserByIdNull() {
-        final BadRequestException exception =
-                assertThrows(BadRequestException.class,
-                        () -> userService.getUserById(null));
-
-        assertEquals("id пользователя не может быть null", exception.getMessage());
-    }
-
-    @Test
-    void updateWithUserIdNull() {
-        final BadRequestException exception =
-                assertThrows(BadRequestException.class,
-                        () -> userService
-                                .update(null, new UpdateUserRequestDto("email@mail.com", "user")));
-
-        assertEquals("id пользователя не может быть null", exception.getMessage());
-    }
-
-    @Test
     void updateWithNoUserById() {
         when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.empty());
@@ -116,16 +97,6 @@ class UserServiceImplTest {
                                 .update(1L, new UpdateUserRequestDto("email@mail.com", "user")));
 
         assertEquals("Нет пользователя с id = 1", exception.getMessage());
-    }
-
-    @Test
-    void updateWithDataForUpdateIsNull() {
-        final BadRequestException exception =
-                assertThrows(BadRequestException.class,
-                        () -> userService
-                                .update(1L, null));
-
-        assertEquals("данные для обновления не могут быть null", exception.getMessage());
     }
 
     @Test
@@ -163,14 +134,6 @@ class UserServiceImplTest {
 
         verify(userRepository, times(1))
                 .findById(1L);
-    }
-
-    @Test
-    void deleteUserIdNull() {
-        final BadRequestException exception = assertThrows(BadRequestException.class,
-                () -> userService.delete(null));
-
-        assertEquals("userId не может быть null", exception.getMessage());
     }
 
     @Test

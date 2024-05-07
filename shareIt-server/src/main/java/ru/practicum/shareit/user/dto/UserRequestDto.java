@@ -9,9 +9,6 @@ import javax.validation.constraints.NotBlank;
 @Data
 @AllArgsConstructor
 public class UserRequestDto {
-    @Email
-    @NotBlank
     private String email;
-    @NotBlank
     private String name;
 }

@@ -35,20 +35,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserById(Long userId) {
-        if (userId == null) {
-            throw new BadRequestException("getUserById", "id пользователя не может быть null");
-        }
-
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ObjectNotFoundException(String.format("Нет пользователя с id = %s", userId)));
     }
 
     @Override
     public UserResponseDto update(Long userId, UpdateUserRequestDto userUpdate) {
-        if (userUpdate == null) {
-            throw new BadRequestException("UserServiceImpl update", "данные для обновления не могут быть null");
-        }
-
         User user = getUserById(userId);
 
         if (userUpdate.getName() != null && !userUpdate.getName().isBlank()) {
@@ -65,9 +57,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void delete(Long userId) {
-        if (userId == null) {
-            throw new BadRequestException("UserServiceImpl delete", "userId не может быть null");
-        }
         if (!userRepository.existsById(userId)) {
             throw new ObjectNotFoundException("пользователь не найден");
         }

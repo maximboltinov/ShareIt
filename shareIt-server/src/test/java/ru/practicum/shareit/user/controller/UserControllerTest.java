@@ -47,33 +47,6 @@ class UserControllerTest {
 
     @SneakyThrows
     @Test
-    void createWithIncorrectValuesInContent() {
-        UserRequestDto userRequestDto = new UserRequestDto("", "user");
-
-        mockMvc.perform(post("/users")
-                        .content(objectMapper.writeValueAsString(userRequestDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
-        verify(userService, never()).create(userRequestDto);
-
-        userRequestDto.setEmail("user@email.com");
-        userRequestDto.setName("");
-
-        mockMvc.perform(post("/users")
-                        .content(objectMapper.writeValueAsString(userRequestDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
-        verify(userService, never()).create(userRequestDto);
-    }
-
-    @SneakyThrows
-    @Test
     void getUserByIdCorrect() {
         String userId = "1";
 

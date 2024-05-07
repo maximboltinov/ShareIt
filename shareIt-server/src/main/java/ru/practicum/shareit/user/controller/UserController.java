@@ -21,7 +21,7 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponseDto create(@Validated @RequestBody UserRequestDto userRequestDto) {
+    public UserResponseDto create(@RequestBody UserRequestDto userRequestDto) {
         log.info("Запрос POST /users userDto = {}", userRequestDto);
         UserResponseDto responseUser = userService.create(userRequestDto);
         log.info("Отправлен ответ POST /users {}", responseUser);
